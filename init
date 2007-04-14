@@ -137,6 +137,25 @@ if [ -z "${NORESUME}" ]; then
 fi
 
 depmod -a
+
+# Also make relevant variables available to external scripts
+cat > /parameters <<EOF
+export DPKG_ARCH=$DPKG_ARCH
+export ROOT=$ROOT
+export MODPROBE_OPTIONS=$MODPROBE_OPTIONS
+export break=$break
+export init=$init
+export quiet=$quiet
+export readonly=$readonly
+export rootmnt=$rootmnt
+export debug=$debug
+export cryptopts=$cryptopts
+export ROOTDELAY=$ROOTDELAY
+export panic=$panic
+export blacklist=$blacklist
+export resume=$resume
+EOF
+
 maybe_break top
 
 # Don't do log messages here to avoid confusing usplash

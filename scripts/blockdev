@@ -61,6 +61,11 @@ fi
 export FSTYPE
 debug "FSTYPE is $FSTYPE"
 
+# Prepare extra parameters
+if [ -e /parameters ]; then
+	. /parameters
+fi
+
 # Prepare a list of scripts to execute
 . /scripts/functions
 initdir="/scripts/blockdevs"
