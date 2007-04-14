@@ -154,6 +154,7 @@ export ROOTDELAY=$ROOTDELAY
 export panic=$panic
 export blacklist=$blacklist
 export resume=$resume
+export BOOT=$BOOT
 EOF
 
 maybe_break top

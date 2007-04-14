@@ -66,6 +66,11 @@ if [ -e /parameters ]; then
 	. /parameters
 fi
 
+if [ -n "$BOOT" ] && [ "$BOOT" != "local" ]; then
+	debug "Skipping blockdev script - BOOT is $BOOT"
+	exit 0
+fi
+
 # Prepare a list of scripts to execute
 . /scripts/functions
 initdir="/scripts/blockdevs"
