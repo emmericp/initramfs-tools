@@ -242,6 +242,10 @@ else
 	ln -s ${BUSYBOXDIR}/busybox ${DESTDIR}/bin/sh
 fi
 
+# udev blockdev magic
+[ -d "${DESTDIR}/etc/udev/rules.d" ] || mkdir -p "${DESTDIR}/etc/udev/rules.d"
+cp /usr/share/initramfs-tools/udev_blockdev.rules "${DESTDIR}/etc/udev/rules.d/060_initramfs_blockdev.rules"
+
 # Modutils
 copy_exec /sbin/modprobe /sbin
 copy_exec /sbin/depmod /sbin
