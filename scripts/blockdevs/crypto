@@ -149,7 +149,7 @@ setup_mapping()
 				echo "cryptsetup: error - $cryptkeyscript missing"
 				return 1
 			fi
-			$cryptkeyscript $cryptkey < /dev/console | $cryptcreate --key-file=- > /dev/console 2>&1
+			$cryptkeyscript $cryptkey < /dev/console 2> /dev/console | $cryptcreate --key-file=- > /dev/console 2>&1
 		else
 			$cryptcreate < /dev/console > /dev/console 2>&1
 		fi
@@ -164,7 +164,7 @@ setup_mapping()
 		fi
 
 		FSTYPE=''
-		eval $(/usr/lib/klibc/bin/fstype < "$NEWROOT")
+		eval $(fstype < "$NEWROOT" 2> /dev/null)
 
 		# See if we need to setup lvm on the crypto device
 		if [ "$FSTYPE" = "lvm" ] || [ "$FSTYPE" = "lvm2" ]; then

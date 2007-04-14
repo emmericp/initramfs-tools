@@ -30,7 +30,7 @@ logname=$(echo "$DEVNAME" | tr "/" "_")
 exec >> /blockdevlog/$logname 2>&1
 
 debug() {
-	if [ $DEBUG ]; then
+	if [ "$DEBUG" -eq 1 ]; then
 		echo "$@"
 	fi
 }
@@ -41,12 +41,11 @@ for opt in $(cat /proc/cmdline); do
 		break
 	fi
 done
-if [ $notfound ]; then
+if [ "$notfound" -eq 1 ]; then
 	exit 0
 fi
 # End debug stuff
 
-debug "Executed at $(date)"
 debug "Called with $DEVNAME and $DEVLINKS"
 if [ ! -e "${DEVNAME}" ]; then
 	debug "${DEVNAME} doesn't exist"
@@ -54,11 +53,11 @@ if [ ! -e "${DEVNAME}" ]; then
 fi
 
 # Make sure the blockdev can be opened and try to identify the FS
-if ! info=$(fstype < "${DEVNAME}" 2> /dev/null); then
+eval $(fstype < "${DEVNAME}" 2> /dev/null)
+if [ -z "$FSTYPE" ]; then
 	debug "Failed to check fstype of $DEVNAME"
 	exit 0
 fi
-eval "$info"
 export FSTYPE
 debug "FSTYPE is $FSTYPE"
 
