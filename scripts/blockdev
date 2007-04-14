@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# This script will be called from udev for each block device node
+# created under /dev. All interesting information will be present
+# in environment variables.
+#
+# The script will check if there is a FS on the blockdev, export
+# that information to the environment and then execute scripts
+# in /scripts/blockdevs/ one by one until it encounters one
+# which exits with exit status 0.
+#
+# Each script will get a list of device names which are all
+# aliases for the same blockdev as arguments
+# (e.g. /dev/sda1 /dev/disk/by-label/my-root-dev etc...)
+#
+# The goal here is to perform further setup as necessary after
+# udev loads modules for basic block devices to setup derived
+# block devices (think LVM, EVMS, crypto, RAID, etc).
+
+if [ -z "${DEVNAME}" ]; then
+	exit 1
+fi
+
+# Temporary debug stuff that will go away later
+DEBUG=1
+if [ ! -d /blockdevlog ]; then
+	mkdir /blockdevlog
+fi
+logname=$(echo "$DEVNAME" | tr "/" "_")
+exec >> /blockdevlog/$logname 2>&1
+
+debug() {
+	if [ $DEBUG ]; then
+		echo "$@"
+	fi
+}
+notfound=1
+for opt in $(cat /proc/cmdline); do
+	if [ "$opt" = "blockdevtest" ]; then
+		notfound=0
+		break
+	fi
+done
+if [ $notfound ]; then
+	exit 0
+fi
+# End debug stuff
+
+debug "Executed at $(date)"
+debug "Called with $DEVNAME and $DEVLINKS"
+if [ ! -e "${DEVNAME}" ]; then
+	debug "${DEVNAME} doesn't exist"
+	exit 0
+fi
+
+# Make sure the blockdev can be opened and try to identify the FS
+if ! info=$(fstype < "${DEVNAME}" 2> /dev/null); then
+	debug "Failed to check fstype of $DEVNAME"
+	exit 0
+fi
+eval "$info"
+export FSTYPE
+debug "FSTYPE is $FSTYPE"
+
+# Prepare a list of scripts to execute
+. /scripts/functions
+initdir="/scripts/blockdevs"
+set_initlist
+runlist="${initlist}"
+
+# Execute scripts until one exits with a success status
+for cs_x in ${runlist}; do
+	debug "Calling hook ${cs_x} for ${DEVNAME}"
+	if ${initdir}/${cs_x} $DEVNAME $DEVLINKS; then
+		# The script has taken control of the device, exit
+		debug "Hook ${cs_x} dealt with $DEVNAME"
+		break
+	fi
+done
+
+debug "Done"
+exit 0

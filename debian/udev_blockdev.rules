@@ -1,0 +1,11 @@
+# This file contains the rules needed to launch the initramfs-tools
+# blockdev script for each new block device.
+
+# we are only interested in add actions for block devices
+SUBSYSTEM!="block",			GOTO="no_blockdev"
+ACTION!="add",				GOTO="no_blockdev"
+
+RUN+="/scripts/blockdev"
+
+# end of processing
+LABEL="no_blockdev"

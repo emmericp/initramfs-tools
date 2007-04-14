@@ -1,0 +1,257 @@
+#!/bin/sh
+
+#
+# Helper functions
+#
+parse_options()
+{
+	local cryptopts
+	cryptopts="$1"
+
+	if [ -z "$cryptopts" ]; then
+		return 1
+	fi
+
+	# Defaults
+	cryptcipher=aes-cbc-essiv:sha256
+	cryptsize=256
+	crypthash=sha256
+	crypttarget=cryptroot
+	cryptsource=""
+	cryptlvm=""
+	cryptkeyscript=""
+	cryptkey="" # This is only used as an argument to an eventual keyscript
+
+	local IFS=" ,"
+	for x in $cryptopts; do
+		case $x in
+		hash=*)
+			crypthash=${x#hash=}
+			;;
+		size=*)
+			cryptsize=${x#size=}
+			;;
+		cipher=*)
+			cryptcipher=${x#cipher=}
+			;;
+		target=*)
+			crypttarget=${x#target=}
+			;;
+		source=*)
+			cryptsource=${x#source=}
+			;;
+		lvm=*)
+			cryptlvm=${x#lvm=}
+			;;
+		keyscript=*)
+			cryptkeyscript=${x#keyscript=}
+			;;
+		key=*)
+			if [ "${x#key=}" != "none" ]; then
+				cryptkey=${x#key=}
+			fi
+			;;
+		esac
+	done
+
+	if [ -z "$cryptsource" ]; then
+		echo "cryptsetup: source parameter missing"
+		return 1
+	fi
+	return 0
+}
+
+activate_vg()
+{
+	local vg
+	vg="${1#/dev/mapper/}"
+
+	# Sanity checks
+	if [ ! -x /sbin/vgchange ] || [ "$vg" = "$1" ]; then
+		return 1
+	fi
+
+	# Make sure that the device contains at least one dash
+	if [ "${vg%%-*}" = "$vg" ]; then
+		return 1
+	fi
+
+	# Split volume group from logical volume.
+	vg=$(echo ${vg} | sed -e 's#\(.*\)\([^-]\)-[^-].*#\1\2#')
+
+	# Reduce padded --'s to -'s
+	vg=$(echo ${vg} | sed -e 's#--#-#g')
+
+	vgchange -ay ${vg}
+	return $?
+}
+
+activate_evms()
+{
+	local dev module
+	dev="${1#/dev/evms/}"
+
+	# Sanity checks
+	if [ ! -x /sbin/evms_activate ] || [ "$dev" = "$1" ]; then
+		return 1
+	fi
+
+	# Load modules used by evms
+	for module in dm-mod linear raid0 raid1 raid10 raid5 raid6; do
+		modprobe -q $module
+	done
+
+	# Activate it
+	/sbin/evms_activate
+	return $?
+}
+
+setup_mapping()
+{
+	local count cryptcreate cryptremove NEWROOT
+
+	# The same target can be specified multiple times
+	# e.g. root and resume lvs-on-lvm-on-crypto
+	if [ -e "/dev/mapper/$crypttarget" ]; then
+		return 0
+	fi
+
+	modprobe -q dm_crypt
+	echo "Setting up cryptographic volume $crypttarget (based on $cryptsource)"
+
+	# Make sure the cryptsource device is available
+	if [ ! -e $cryptsource ]; then
+		activate_vg $cryptsource
+		activate_evms $cryptsource
+	fi
+
+	if [ ! -e $cryptsource ]; then
+		echo "cryptsetup: Source device $cryptsource not found"
+		return 1
+	fi
+
+	# Prepare commands
+	if /sbin/cryptsetup isLuks $cryptsource > /dev/null 2>&1; then
+		cryptcreate="/sbin/cryptsetup luksOpen $cryptsource $crypttarget"
+	else
+		cryptcreate="/sbin/cryptsetup -c $cryptcipher -s $cryptsize -h $crypthash create $crypttarget $cryptsource"
+	fi
+	cryptremove="/sbin/cryptsetup remove $crypttarget"
+	NEWROOT="/dev/mapper/$crypttarget"
+
+	# Try to get a satisfactory password three times
+	count=0
+	while [ $count -lt 3 ]; do
+		count=$(( $count + 1 ))
+
+		if [ -n "$cryptkeyscript" ]; then
+			if [ ! -x "$cryptkeyscript" ]; then
+				echo "cryptsetup: error - $cryptkeyscript missing"
+				return 1
+			fi
+			$cryptkeyscript $cryptkey < /dev/console | $cryptcreate --key-file=- > /dev/console 2>&1
+		else
+			$cryptcreate < /dev/console > /dev/console 2>&1
+		fi
+
+		if [ $? -ne 0 ]; then
+			echo "cryptsetup: cryptsetup failed, bad password or options?"
+			sleep 3
+			continue
+		elif [ ! -e "$NEWROOT" ]; then
+			echo "cryptsetup: unknown error setting up device mapping"
+			return 1
+		fi
+
+		FSTYPE=''
+		eval $(/usr/lib/klibc/bin/fstype < "$NEWROOT")
+
+		# See if we need to setup lvm on the crypto device
+		if [ "$FSTYPE" = "lvm" ] || [ "$FSTYPE" = "lvm2" ]; then
+			if [ -z "$cryptlvm" ]; then
+				echo "cryptsetup: lvm fs found but no lvm configured"
+				return 1
+			elif ! activate_vg "/dev/mapper/$cryptlvm"; then
+				echo "cryptsetup: failed to setup lvm device"
+				return 1
+			fi
+
+			NEWROOT="/dev/mapper/$cryptlvm"
+			eval $(fstype < "$NEWROOT")
+		fi
+
+		if [ -z "$FSTYPE" ] || [ "$FSTYPE" = "unknown" ]; then
+			echo "cryptsetup: unknown fstype, bad password or options?"
+			$cryptremove
+			sleep 3
+			continue
+		fi
+
+		break
+	done
+
+	if [ $count -lt 3 ]; then
+		return 0
+	else
+		echo "cryptsetup: maximum number of tries exceeded"
+		return 1
+	fi
+}
+
+#
+# Begin real processing
+#
+
+# FIXME: Do we have any kernel boot arguments?
+#found=''
+#for opt in $(cat /proc/cmdline); do
+#	case $opt in
+#	cryptopts=*)
+#		found=yes
+#		setup_mapping "${opt#cryptopts=}"
+#		;;
+#	esac
+#done
+
+#if [ -n "$found" ]; then
+#	exit 0
+#fi
+
+# We need at least one source dev
+if [ $# -lt 1 ]; then
+	exit 1
+fi
+
+# The source dev must have FSTYPE "unknown" or "luks"
+if [ "${FSTYPE}" != "luks" ] && [ "${FSTYPE}" != "unknown" ]; then
+	exit 1
+fi
+
+# Do we have any settings from the /conf/conf.d/cryptroot file?
+if [ ! -r /conf/conf.d/cryptroot ]; then
+	exit 1
+fi
+
+# Compare each line in the cryptroot file to each device passed to the script
+while read mapping; do
+	if [ -z "$mapping" ]; then
+		continue
+	fi
+
+	if [ "${mapping}" != "${mapping###}" ]; then
+		continue
+	fi
+
+	parse_options "${mapping}" || continue
+	echo "We have a source: $cryptsource"
+
+	for source in $@; do
+		echo "Comparing to $source"
+		if [ "${source}" = "${cryptsource}" ]; then
+			echo "Match"
+			setup_mapping
+			exit $?
+		fi
+	done
+done < /conf/conf.d/cryptroot
+exit 1
