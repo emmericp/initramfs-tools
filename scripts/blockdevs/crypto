@@ -18,7 +18,6 @@ parse_options()
 	crypthash=sha256
 	crypttarget=cryptroot
 	cryptsource=""
-	cryptlvm=""
 	cryptkeyscript=""
 	cryptkey="" # This is only used as an argument to an eventual keyscript
 
@@ -40,9 +39,6 @@ parse_options()
 		source=*)
 			cryptsource=${x#source=}
 			;;
-		lvm=*)
-			cryptlvm=${x#lvm=}
-			;;
 		keyscript=*)
 			cryptkeyscript=${x#keyscript=}
 			;;
@@ -59,31 +55,6 @@ parse_options()
 		return 1
 	fi
 	return 0
-}
-
-activate_vg()
-{
-	local vg
-	vg="${1#/dev/mapper/}"
-
-	# Sanity checks
-	if [ ! -x /sbin/vgchange ] || [ "$vg" = "$1" ]; then
-		return 1
-	fi
-
-	# Make sure that the device contains at least one dash
-	if [ "${vg%%-*}" = "$vg" ]; then
-		return 1
-	fi
-
-	# Split volume group from logical volume.
-	vg=$(echo ${vg} | sed -e 's#\(.*\)\([^-]\)-[^-].*#\1\2#')
-
-	# Reduce padded --'s to -'s
-	vg=$(echo ${vg} | sed -e 's#--#-#g')
-
-	vgchange -ay ${vg}
-	return $?
 }
 
 activate_evms()
@@ -165,20 +136,6 @@ setup_mapping()
 
 		FSTYPE=''
 		eval $(fstype < "$NEWROOT" 2> /dev/null)
-
-		# See if we need to setup lvm on the crypto device
-		if [ "$FSTYPE" = "lvm" ] || [ "$FSTYPE" = "lvm2" ]; then
-			if [ -z "$cryptlvm" ]; then
-				echo "cryptsetup: lvm fs found but no lvm configured"
-				return 1
-			elif ! activate_vg "/dev/mapper/$cryptlvm"; then
-				echo "cryptsetup: failed to setup lvm device"
-				return 1
-			fi
-
-			NEWROOT="/dev/mapper/$cryptlvm"
-			eval $(fstype < "$NEWROOT")
-		fi
 
 		if [ -z "$FSTYPE" ] || [ "$FSTYPE" = "unknown" ]; then
 			echo "cryptsetup: unknown fstype, bad password or options?"
