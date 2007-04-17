@@ -313,7 +313,7 @@ check_minkver()
 		return 0
 	fi
 	set_initlist
-	for cm_x in "${initlist}"; do
+	for cm_x in ${initlist}; do
 		# sed: keep last line starting with MINKVER=, remove MINKVER= and trailing space
 		tmp=$(sed '/^MINKVER=/!d;$!d;s/^MINKVER=//;s/[[:space:]]*$//' "${initdir}/${cm_x}")
 		if [ -z "${tmp}" ]; then
