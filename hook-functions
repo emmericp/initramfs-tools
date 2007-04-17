@@ -12,8 +12,8 @@ catenate_cpiogz() {
 
 force_load()
 {
-		manual_add_modules ${@}
-		echo "${@}" >>"${DESTDIR}/conf/modules"
+	manual_add_modules "${1}"
+	echo "${@}" >>"${DESTDIR}/conf/modules"
 }
 
 # Takes a file containing a list of modules to be added as an
@@ -33,13 +33,15 @@ add_modules_from_file()
 		return
 	fi
 
-	sed -e '/^#/d' ${1} | while read module rest; do
+	sed -e '/^#/d' "${1}" | while read module rest; do
 		force_load "${module}" "${rest}"
 	done
 }
 
 manual_add_modules()
 {
+	local mam_x firmwares firmware
+
 	for mam_x in $(modprobe --set-version="${version}" --ignore-install \
 	--show-depends "${1}" 2>/dev/null | awk '/^insmod/ { print $2 }'); do
 		# Prune duplicates
@@ -87,7 +89,8 @@ manual_add_modules()
 # If $2 is left out, the same basename as for the source arg will be used
 # If the destination directory does not exist, it will be created
 copy_exec() {
-	local source target
+	local source target final_destination x nonoptlib libname dirname
+
 	source="${1}"
 	if [ -z "${2}" ]; then
 		target=$(dirname "${1}")
@@ -143,19 +146,22 @@ copy_exec() {
 # Copy entire subtrees to the initramfs
 copy_modules_dir()
 {
+	local x_mod
+
 	if ! [ -d "${MODULESDIR}/${1}" ]; then
 		return;
 	fi
-	if [ -n "${verbose}" ] && [ "${verbose}" = "y" ]; then
+	if [ "${verbose}" = "y" ]; then
 		echo "Copying module directory ${1}"
 	fi
 	for x_mod in $(find "${MODULESDIR}/${1}" -name '*.ko' -print); do
-		manual_add_modules `basename ${x_mod} .ko`
+		manual_add_modules $(basename ${x_mod} .ko)
 	done
 }
 
 dep_add_modules()
 {
+	local x
 
 	# Things that are too hard to autodetect.
 	for x in ext2 ext3 isofs jfs nfs reiserfs xfs af_packet; do
@@ -199,6 +205,8 @@ dep_add_modules()
 # The modules "most" classes added per default to the initramfs
 auto_add_modules()
 {
+	local x
+
 	case "$1" in
 	base)
 		for x in ehci-hcd ohci-hcd uhci-hcd usbhid usb-storage ext2 \
@@ -283,11 +291,13 @@ EOF
 # minimal supported kernel version
 check_minkver()
 {
-	curversion=${1}
-	initdir=${2}
-	if [ -z ${initdir} ]; then
-		DPKG_ARCH=`dpkg --print-installation-architecture`
-		case ${DPKG_ARCH} in
+	local curversion initdir DPKG_ARCH minversion cm_x tmp
+
+	curversion="${1}"
+	initdir="${2}"
+	if [ -z "${initdir}" ]; then
+		DPKG_ARCH=$(dpkg --print-installation-architecture)
+		case "${DPKG_ARCH}" in
 			ia64|hppa)
 				minversion="2.6.15"
 			;;
@@ -303,8 +313,8 @@ check_minkver()
 		return 0
 	fi
 	set_initlist
-	for cm_x in ${initlist}; do
-		tmp=$(eval echo $(grep ^MINKVER ${initdir}/${cm_x} | cut -d'=' -f2))
+	for cm_x in "${initlist}"; do
+		tmp=$(eval echo $(grep ^MINKVER "${initdir}/${cm_x}" | cut -d'=' -f2))
 		if dpkg --compare-versions "${curversion}" lt "${tmp}"; then
 			echo "W: ${cm_x} hook script requires at least kernel version ${tmp}" >&2
 			echo "W: not generating requested initramfs for kernel ${curversion}" >&2

@@ -3,8 +3,10 @@ initramfs-tools (0.88) UNRELEASED; urgency=low
   * hook-functions: Add firmware loading support
   * hook-functions: Change copy_exec to use the same source and
     destination path if only one argument is given.
+  * hook-functions: protect all variables with quoting and proper use of
+    local.
 
- -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 20:01:01 +0200
+ -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 20:38:46 +0200
 
 initramfs-tools (0.87b) unstable; urgency=low
 
