@@ -86,24 +86,39 @@ manual_add_modules()
 	done
 }
 
-# $1 is source
-# $2 is relative destination
+# $1 is the source path (e.g. /usr/bin/time)
+# $2 is the relative destination directory (e.g. /usr)
+#
+# If $2 is left out, the same basename as for the source arg will be used
+# If the destination directory does not exist, it will be created
 copy_exec() {
-	final_destination=${DESTDIR}/${2}/`basename ${1}`
+	local source target
+	source="${1}"
+	if [ -z "${2}" ]; then
+		target=$(dirname "${1}")
+	else
+		target="${2}"
+	fi
+
+	if [ ! -e "${DESTDIR}/${target}" ]; then
+		mkdir -p "${DESTDIR}/${target}"
+	fi
+
+	final_destination="${DESTDIR}/${target}/$(basename "${source}")"
 	if [ -L "$final_destination" ]; then
-		if ! [ `readlink ${final_destination}` = "${1}" ]; then
-			echo "W:copy_exec: Not copying ${1} to \$DESTDIR${2}/`basename ${1}`, which is already a copy of `readlink ${final_destination}`" >&2
+		if [ $(readlink "${final_destination}") != "${source}" ]; then
+			echo "W:copy_exec: Not copying ${source} to \$DESTDIR${target}/$(basename ${source}), which is already a copy of $(readlink ${final_destination})" >&2
 			return
 		fi
 	else
-		ln -s ${1} ${DESTDIR}/${2}
-		if [ -n "${verbose}" ] && [ "${verbose}" = "y" ]; then
-			echo "Adding binary ${1}"
+		ln -s "${source}" "${DESTDIR}/${target}"
+		if [ "${verbose}" = "y" ]; then
+			echo "Adding binary ${source}"
 		fi
 	fi
 
 	# Copy the dependant libraries
-	for x in $(ldd ${1} 2>/dev/null | sed -e '
+	for x in $(ldd "${source}" 2>/dev/null | sed -e '
 	    /\//!d;
 	    /linux-gate/d;
 	    /=>/ {s/.*=>[[:blank:]]*\([^[:blank:]]*\).*/\1/};
@@ -111,19 +126,19 @@ copy_exec() {
 
 		# Try to use non-optimised libraries where possible.
 		# We assume that all HWCAP libraries will be in tls.
-		nonoptlib=$(echo ${x} | sed -e 's#/lib/tls.*/\(lib.*\)#/lib/\1#')
+		nonoptlib=$(echo "${x}" | sed -e 's#/lib/tls.*/\(lib.*\)#/lib/\1#')
 
-		if [ -e ${nonoptlib} ]; then
-			x=${nonoptlib}
+		if [ -e "${nonoptlib}" ]; then
+			x="${nonoptlib}"
 		fi
 
-		libname=$(basename ${x})
-		dirname=$(dirname ${x})
+		libname=$(basename "${x}")
+		dirname=$(dirname "${x}")
 
-		mkdir -p ${DESTDIR}/${dirname}
-		if [ ! -e ${DESTDIR}/${dirname}/${libname} ]; then
-			ln -s ${x} ${DESTDIR}/${dirname}
-			if [ -n "${verbose}" ] && [ "${verbose}" = "y" ]; then
+		mkdir -p "${DESTDIR}/${dirname}"
+		if [ ! -e "${DESTDIR}/${dirname}/${libname}" ]; then
+			ln -s "${x}" "${DESTDIR}/${dirname}"
+			if [ "${verbose}" = "y" ]; then
 				echo "Adding library ${x}"
 			fi
 		fi
