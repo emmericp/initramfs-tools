@@ -5,6 +5,7 @@ initramfs-tools (0.88) UNRELEASED; urgency=low
     destination path if only one argument is given.
   * hook-functions: protect all variables with quoting and proper use of
     local.
+  * hook-functions: make version check in check_minkver more robust.
 
  -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 20:38:46 +0200
 
