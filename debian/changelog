@@ -7,8 +7,10 @@ initramfs-tools (0.88) UNRELEASED; urgency=low
     local.
   * hook-functions: make version check in check_minkver more robust.
   * init: ignore invalid panic and rootdelay arguments.
+  * scripts/local: add error checking for root mount and root fs
+    support.
 
- -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 21:26:59 +0200
+ -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 21:34:22 +0200
 
 initramfs-tools (0.87b) unstable; urgency=low
 
