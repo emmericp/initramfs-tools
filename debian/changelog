@@ -1,7 +1,7 @@
 initramfs-tools (0.88) UNRELEASED; urgency=low
 
-  * hook-function: Add firmware loading support
-  * hook-function: Change copy_exec to use the same source and
+  * hook-functions: Add firmware loading support
+  * hook-functions: Change copy_exec to use the same source and
     destination path if only one argument is given.
 
  -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 20:01:01 +0200
