@@ -59,7 +59,7 @@ manual_add_modules()
 				if [ ! -e "/lib/firmware/${firmware}" ]; then
 					if [ "${verbose}" = "y" ] && \
 					   grep "^[[:space:]]*$(basename "${mam_x}" .ko)[[:space:]]*$" "${DESTDIR}/conf/modules"; then
-						echo "W:Could not find firmware file /lib/firmware/${firmware} for module ${mam_x}"
+						echo "W:Could not find firmware file /lib/firmware/${firmware} for module ${mam_x}" >&2
 					fi
 					continue
 				fi
