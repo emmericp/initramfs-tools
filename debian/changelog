@@ -9,6 +9,12 @@ initramfs-tools (0.88) UNRELEASED; urgency=low
   * init: ignore invalid panic and rootdelay arguments.
   * scripts/local: add error checking for root mount and root fs
     support.
+  * Ubuntu merge:
+    - As well as waiting for the existance of the root device node, also check 
+      to see whether we have a filesystem of some kind on it.  Some devices
+      nodes (devmapper/LVM/EVMS, mdadm) will exist before they can be safely
+      used. Patch by Scott James Remnant <scott@ubuntu.com>. Changed to
+      support both fstype and vol_id.
 
  -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 21:34:22 +0200
 
