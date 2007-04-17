@@ -6,8 +6,9 @@ initramfs-tools (0.88) UNRELEASED; urgency=low
   * hook-functions: protect all variables with quoting and proper use of
     local.
   * hook-functions: make version check in check_minkver more robust.
+  * init: ignore invalid panic and rootdelay arguments.
 
- -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 20:38:46 +0200
+ -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 21:26:59 +0200
 
 initramfs-tools (0.87b) unstable; urgency=low
 

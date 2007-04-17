@@ -132,6 +132,24 @@ for x in $(cat /proc/cmdline); do
 	esac
 done
 
+# Returns 0 if $1 is an integer or empty string
+check_numerical_arg() {
+	local arg="${1}"
+
+	while [ "${arg%[0-9]}" != "${arg}" ]; do
+		arg="${arg%[0-9]}"
+	done
+
+	if [ -n "${arg}" ]; then
+		return 1
+	fi
+
+	return 0
+}
+
+# Sanity check arguments
+check_numerical_arg "${panic}" || panic=
+check_numerical_arg "${ROOTDELAY}" || ROOTDELAY=
 if [ -z "${NORESUME}" ]; then
 	export resume=${RESUME}
 fi
