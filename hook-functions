@@ -58,7 +58,7 @@ manual_add_modules()
 				# Only print warning for missing fw if we know the module is going to be loaded
 				if [ ! -e "/lib/firmware/${firmware}" ]; then
 					if [ "${verbose}" = "y" ] && \
-					   grep "^[[:space:]]*${mam_x}[[:space:]]*$" "${DESTDIR}/conf/modules"; then
+					   grep "^[[:space:]]*$(basename "${mam_x}" .ko)[[:space:]]*$" "${DESTDIR}/conf/modules"; then
 						echo "W:Could not find firmware file /lib/firmware/${firmware} for module ${mam_x}"
 					fi
 					continue
