@@ -1,3 +1,9 @@
+initramfs-tools (0.88) UNRELEASED; urgency=low
+
+  * Add firmware loading support
+
+ -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 19:43:14 +0200
+
 initramfs-tools (0.87b) unstable; urgency=low
 
   * scripts/init-top/framebuffer: Remove vga16fb loading on splash bootarg.

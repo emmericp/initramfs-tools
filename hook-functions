@@ -47,11 +47,42 @@ manual_add_modules()
 			continue
 		fi
 
-		mkdir -p "${DESTDIR}/$(dirname "${mam_x}")"
-		ln -s "${mam_x}" "${DESTDIR}/$(dirname "${mam_x}")"
-		if [ -n "${verbose}" ] && [ "${verbose}" = "y" ]; then
+		# Add firmware files if necessary
+		firmwares=$(modinfo -F firmware "${mam_x}")
+		if [ -n "${firmwares}" ]; then
+			for firmware in $firmwares; do
+				if [ -e "${DESTDIR}/lib/firmware/${firmware}" ]; then
+					continue
+				fi
+
+				# Only print warning for missing fw if we know the module is going to be loaded
+				if [ ! -e "/lib/firmware/${firmware}" ]; then
+					if [ "${verbose}" = "y" ] && \
+					   grep "^[[:space:]]*${mam_x}[[:space:]]*$" "${DESTDIR}/conf/modules"; then
+						echo "W:Could not find firmware file /lib/firmware/${firmware} for module ${mam_x}"
+					fi
+					continue
+				fi
+
+				if [ ! -e "${DESTDIR}/lib/firmware" ]; then
+					mkdir -p "${DESTDIR}/lib/firmware"
+				fi
+
+				if [ ! -e "${DESTDIR}/lib/udev/firmware.agent" ] && \
+				   [ -e "/lib/udev/firmware.agent" ]; then
+					copy_exec /lib/udev/firmware.agent /lib/udev
+				fi
+
+				copy_exec "/lib/firmware/${firmware}" "${DESTDIR}/lib/firmware"
+			done
+		fi
+
+		# Add the module
+		if [ "${verbose}" = "y" ]; then
 			echo "Adding module ${mam_x}"
 		fi
+		mkdir -p "${DESTDIR}/$(dirname "${mam_x}")"
+		copy_exec "${mam_x}" "$(dirname "${mam_x}")"
 	done
 }
 
