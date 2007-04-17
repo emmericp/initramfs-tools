@@ -115,7 +115,7 @@ copy_exec() {
 	else
 		destination="${target}"
 	fi
-	final_destination="${DESTDIR}/${dest}"
+	final_destination="${DESTDIR}/${destination}"
 
 	if [ -L "$final_destination" ]; then
 		if [ $(readlink "${final_destination}") != "${source}" ]; then
