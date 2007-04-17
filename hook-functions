@@ -84,32 +84,46 @@ manual_add_modules()
 }
 
 # $1 is the source path (e.g. /usr/bin/time)
-# $2 is the relative destination directory (e.g. /usr)
+# $2 is the relative destination (e.g. /usr or /usr/time)
 #
-# If $2 is left out, the same basename as for the source arg will be used
-# If the destination directory does not exist, it will be created
+# The destination is interpreted in the same way "cp" would, meaning
+# (assuming /bin is a directory):
+#
+#   "copy_exec /usr/bin/time /bin"        -> /bin/time
+#   "copy_exec /usr/bin/time /bin/mytime" -> /bin/mytime
+# 
+# If $2 is left out, the same destination path as for the source arg will
+# be used and directories will be created as needed, so:
+#
+#   "copy_exec /usr/bin/time"             -> /usr/bin/time
+#
 copy_exec() {
-	local source target final_destination x nonoptlib libname dirname
+	local source target destination final_destination x nonoptlib libname dirname
 
 	source="${1}"
-	if [ -z "${2}" ]; then
-		target=$(dirname "${1}")
-	else
+	if [ -n "${2}" ]; then
 		target="${2}"
+	else
+		if [ ! -e "${DESTDIR}/$(dirname "${1}")" ]; then
+			mkdir -p "${DESTDIR}/$(dirname "${1}")"
+		fi
+		target="${1}"
 	fi
 
-	if [ ! -e "${DESTDIR}/${target}" ]; then
-		mkdir -p "${DESTDIR}/${target}"
+	if [ -d "${DESTDIR}/${target}" ]; then
+		destination="${target}/$(basename "${source}")"
+	else
+		destination="${target}"
 	fi
+	final_destination="${DESTDIR}/${dest}"
 
-	final_destination="${DESTDIR}/${target}/$(basename "${source}")"
 	if [ -L "$final_destination" ]; then
 		if [ $(readlink "${final_destination}") != "${source}" ]; then
-			echo "W:copy_exec: Not copying ${source} to \$DESTDIR${target}/$(basename ${source}), which is already a copy of $(readlink ${final_destination})" >&2
+			echo "W:copy_exec: Not copying ${source} to \$DESTDIR${destination}), which is already a copy of $(readlink ${final_destination})" >&2
 			return
 		fi
 	else
-		ln -s "${source}" "${DESTDIR}/${target}"
+		ln -s "${source}" "${DESTDIR}/${destination}"
 		if [ "${verbose}" = "y" ]; then
 			echo "Adding binary ${source}"
 		fi

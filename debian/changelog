@@ -15,6 +15,7 @@ initramfs-tools (0.88) UNRELEASED; urgency=low
       nodes (devmapper/LVM/EVMS, mdadm) will exist before they can be safely
       used. Patch by Scott James Remnant <scott@ubuntu.com>. Changed to
       support both fstype and vol_id.
+  * hook-funcions: document how copy_exec determines the target path.
 
  -- David Härdeman <david@hardeman.nu>  Tue, 17 Apr 2007 21:34:22 +0200
 
