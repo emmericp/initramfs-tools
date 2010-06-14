@@ -55,7 +55,7 @@ panic()
 
 maybe_break()
 {
-	if [ "${break:-}" = "$1" ]; then
+	if echo "${break:-}" | egrep -q "(,|^)$1(,|$)"; then
 		panic "Spawning shell within the initramfs"
 	fi
 }
