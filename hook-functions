@@ -100,6 +100,38 @@ manual_add_modules()
 	done
 }
 
+# Install a directory, keeping symlinks as on the original system.
+# Example: if /lib64 points to /lib on the host, "inst_dir /lib/file"
+# will create ${DESTDIR}/lib64, ${DESTDIR}/lib64/file,
+# and a symlink ${DESTDIR}/lib -> lib64.
+inst_dir()
+{
+	local target
+	local dir="$1"
+	[ -e "${DESTDIR}$dir" ] && return 0
+
+	# iterate over parent directories
+	local file=""
+	local IFS="/"
+	for part in $dir; do
+		[ -z "$part" ] && continue
+		file="$file/$part"
+		[ -e "${DESTDIR}$file" ] && continue
+
+		if [ -L "$file" ]; then
+			# create link as the original
+			target=$(readlink "$file")
+			ln -sfn "$target" "${DESTDIR}$file" || return 1
+			# resolve relative path and recursively install destionation
+			[ "$target" = "${target##*/}" ] && target="${file%/*}/$target"
+			inst_dir "$target"
+		else
+			# create directory
+			mkdir -p "${DESTDIR}$file" || return 1
+		fi
+	done
+}
+
 # $1 = file to copy to ramdisk
 # $2 (optional) Name for the file on the ramdisk
 # Location of the image dir is assumed to be $DESTDIR
@@ -118,8 +150,7 @@ copy_exec() {
 		[ -e "${DESTDIR}/$target/${src##*/}" ] && return 0
 	else
 		[ -e "${DESTDIR}/$target" ] && return 0
-		#FIXME: inst_dir
-		mkdir -p "${DESTDIR}/${target%/*}"
+		inst_dir "${target%/*}"
 	fi
 
 	[ "${verbose}" = "y" ] && echo "Adding binary ${src}"
@@ -144,8 +175,7 @@ copy_exec() {
 		libname=$(basename "${x}")
 		dirname=$(dirname "${x}")
 
-		# FIXME inst_lib
-		mkdir -p "${DESTDIR}/${dirname}"
+		inst_dir "${dirname}"
 		if [ ! -e "${DESTDIR}/${dirname}/${libname}" ]; then
 			cp -pL "${x}" "${DESTDIR}/${dirname}"
 			[ "${verbose}" = "y" ] && echo "Adding library ${x}" || true
