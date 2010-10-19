@@ -23,26 +23,16 @@ log_warning_msg()
 
 log_begin_msg()
 {
-	if [ -x /sbin/usplash_write ]; then
-		/sbin/usplash_write "TEXT $@"
-	fi
 	_log_msg "Begin: $@ ... "
 }
 
 log_end_msg()
 {
-	if [ -x /sbin/usplash_write ]; then
-		/sbin/usplash_write "SUCCESS ok"
-	fi
 	_log_msg "done.\n"
 }
 
 panic()
 {
-	if [ -x /sbin/usplash_write ]; then
-		/sbin/usplash_write "QUIT"
-	fi
-
 	if command -v chvt >/dev/null 2>&1; then
 		chvt 1
 	fi

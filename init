@@ -197,7 +197,7 @@ fi
 
 maybe_break top
 
-# Don't do log messages here to avoid confusing usplash
+# Don't do log messages here to avoid confusing graphical boots
 run_scripts /scripts/init-top
 
 maybe_break modules
