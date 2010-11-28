@@ -362,6 +362,8 @@ configure_networking()
 	# networking already configured thus bail out
 	[ -n "${DEVICE}" ] && [ -e /tmp/net-"${DEVICE}".conf ] && return 0
 
+	wait_for_udev 10
+
 	# support ip options see linux sources
 	# Documentation/filesystems/nfs/nfsroot.txt
 	# Documentation/frv/booting.txt
