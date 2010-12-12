@@ -270,8 +270,8 @@ parse_numeric() {
 		return
 		;;
 	[0-9]*:[0-9]*)
-		minor=${1#*:}
-		major=${1%:*}
+		minor=$(( ${1#*:} ))
+		major=$(( ${1%:*} ))
 		;;
 	[A-Fa-f0-9]*)
 		value=$(( 0x${1} ))
@@ -283,8 +283,12 @@ parse_numeric() {
 		;;
 	esac
 
-	mknod -m 600 /dev/root b ${major} ${minor}
-	ROOT=/dev/root
+	if command -v udevd >/dev/null 2>&1; then
+		ROOT=/dev/block/${major}:${minor}
+	else
+		mknod -m 600 /dev/root b ${major} ${minor}
+		ROOT=/dev/root
+	fi
 }
 
 # Parameter: device node to check
