@@ -193,8 +193,6 @@ else
 	resume=${RESUME:-}
 fi
 
-[ -n "${netconsole}" ] && modprobe netconsole netconsole="${netconsole}"
-
 maybe_break top
 
 # Don't do log messages here to avoid confusing graphical boots
@@ -204,6 +202,8 @@ maybe_break modules
 [ "$quiet" != "y" ] && log_begin_msg "Loading essential drivers"
 load_modules
 [ "$quiet" != "y" ] && log_end_msg
+
+[ -n "${netconsole}" ] && modprobe netconsole netconsole="${netconsole}"
 
 maybe_break premount
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-premount"
