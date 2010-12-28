@@ -20,7 +20,10 @@ case "$1" in
 		# First time install.  Can we autodetect the RESUME partition?
 		if [ -r /proc/swaps ]; then
 			RESUME=$(tail -n $(($(wc -l /proc/swaps | awk ' { print $1 } ') - 1)) /proc/swaps | sort -rk3 | head -n 1 | awk ' { print $1 } ')
-			if command -v vol_id >/dev/null 2>&1; then
+			if command -v blkid >/dev/null 2>&1; then
+				UUID=$(blkid -s UUID -o value "$RESUME" || true)
+			# FIXME: post-Wheezy remove vol_id invocations
+			elif command -v vol_id >/dev/null 2>&1; then
 				UUID=$(vol_id -u "$RESUME" || true)
 			elif [ -x /lib/udev/vol_id ]; then
 				UUID=$(/lib/udev/vol_id -u "$RESUME" || true)
