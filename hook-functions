@@ -370,8 +370,6 @@ dep_add_modules()
 	if [ -d "${DESTDIR}/lib/modules/${version}/kernel/drivers/ide" ]; then
 		sys_walk_modalias ${root_dev_path}
 		manual_add_modules ide-gd_mod
-		# FIXME: remove post Squeeze
-		manual_add_modules ide-disk
 		manual_add_modules ide-cd
 	fi
 
