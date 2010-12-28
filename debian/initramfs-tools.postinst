@@ -7,10 +7,7 @@ if [ ! -e /etc/initramfs-tools/modules ]; then
 fi
 
 # Regenerate initramfs whenever we go to dpkg state `installed'
-
-if [ "x$1" != xtriggered ] && \
-   dpkg --compare-versions "$DPKG_RUNNING_VERSION" ge '1.14.5ubuntu10~~'
-then
+if [ "x$1" != xtriggered ]; then
 	# this activates the trigger, if triggers are working
 	update-initramfs -u
 else
@@ -19,4 +16,3 @@ else
 fi
 
 #DEBHELPER#
-
