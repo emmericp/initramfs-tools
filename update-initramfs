@@ -170,7 +170,7 @@ generate_initramfs()
 			# minversion wasn't met, exit 0
 			exit 0
 		fi
-		echo "update-initramfs: failed for ${initramfs}" >&2
+		echo "update-initramfs: failed for ${initramfs} with $mkinitramfs_return." >&2
 		exit $mkinitramfs_return
 	fi
 }
