@@ -247,10 +247,6 @@ dep_add_modules()
 	# most of the commands below only work with block devices.
 	if [ "${FSTYPE}" = "ubifs" ]; then
 		manual_add_modules "${FSTYPE}"
-		# add some modules required by ubifs on which it doesn's depend
-		manual_add_modules deflate
-		manual_add_modules zlib
-		manual_add_modules lzo
 		return
 	fi
 
@@ -490,10 +486,12 @@ auto_add_modules()
 # fixed, we need to handle those hidden dependencies.
 hidden_dep_add_modules()
 {
-	for dep in "lib/libcrc32c crc32c"; do
+	for dep in "lib/libcrc32c crc32c" "fs/ubifs/ubifs deflate zlib lzo"; do
 		set -- $dep
 		if [ -f "${DESTDIR}/lib/modules/${version}/kernel/$1.ko" ]; then
 			manual_add_modules "$2"
+			[ -n "$3" ] && manual_add_modules "$3"
+			[ -n "$4" ] && manual_add_modules "$4"
 		fi
 	done
 }
