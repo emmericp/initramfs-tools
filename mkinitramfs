@@ -295,6 +295,13 @@ fi
 depmod -a -b "${DESTDIR}" ${version}
 rm -f "${DESTDIR}/lib/modules/${version}"/modules.*map
 
+# make sure that library search path is up to date
+cp -ar /etc/ld.so.conf* "$DESTDIR"/etc/
+if ! ldconfig -r "$DESTDIR" ; then
+	[ $(id -u) != "0" ] \
+	&& echo "ldconfig might need uid=0 (root) for chroot()" >&2
+fi
+
 # Apply DSDT to initramfs
 if [ -e "${CONFDIR}/DSDT.aml" ]; then
 	copy_exec "${CONFDIR}/DSDT.aml" /
