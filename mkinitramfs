@@ -142,6 +142,7 @@ if ! `grep -q -i ^config_rd_${COMPRESS%p} /boot/config-${version}` ; then
 fi
 
 [ "${compress}" = lzop ] && compress="lzop -9"
+[ "${compress}" = xz ] && compress="xz -9"
 
 if [ -d "${outfile}" ]; then
 	echo "${outfile} is a directory" >&2
