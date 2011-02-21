@@ -52,7 +52,7 @@ manual_add_modules()
 		fi
 
 		mkdir -p "${DESTDIR}/$(dirname "${kmod}")"
-		ln -s "${kmod}" "${DESTDIR}/$(dirname "${kmod}")"
+		cp -pL "${kmod}" "${DESTDIR}/$(dirname "${kmod}")"
 		if [ "${verbose}" = "y" ]; then
 			echo "Adding module ${kmod}"
 		fi
@@ -123,7 +123,7 @@ copy_exec() {
 	fi
 
 	[ "${verbose}" = "y" ] && echo "Adding binary ${src}"
-	ln -s "${src}" "${DESTDIR}/${target}"
+	cp -pL "${src}" "${DESTDIR}/${target}"
 
 	# Copy the dependant libraries
 	for x in $(ldd ${src} 2>/dev/null | sed -e '
@@ -147,7 +147,7 @@ copy_exec() {
 		# FIXME inst_lib
 		mkdir -p "${DESTDIR}/${dirname}"
 		if [ ! -e "${DESTDIR}/${dirname}/${libname}" ]; then
-			ln -s "${x}" "${DESTDIR}/${dirname}"
+			cp -pL "${x}" "${DESTDIR}/${dirname}"
 			[ "${verbose}" = "y" ] && echo "Adding library ${x}" || true
 		fi
 	done

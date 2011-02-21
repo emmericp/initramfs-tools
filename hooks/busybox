@@ -26,6 +26,5 @@ else
 	. /usr/share/initramfs-tools/hook-functions
 	rm -f ${DESTDIR}/bin/sh
 	rm -f ${DESTDIR}/bin/busybox
-	copy_exec ${BUSYBOXDIR}/busybox /bin/busybox
-	ln -s ${BUSYBOXDIR}/busybox ${DESTDIR}/bin/sh
+	copy_exec ${BUSYBOXDIR}/busybox /bin/sh
 fi
