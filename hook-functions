@@ -490,8 +490,11 @@ hidden_dep_add_modules()
 		set -- $dep
 		if [ -f "${DESTDIR}/lib/modules/${version}/kernel/$1.ko" ]; then
 			manual_add_modules "$2"
-			[ -n "$3" ] && manual_add_modules "$3"
-			[ -n "$4" ] && manual_add_modules "$4"
+			shift ; shift
+			for i in "$@" ; do
+				manual_add_modules "$i"
+				shift
+			done
 		fi
 	done
 }
