@@ -37,6 +37,7 @@ panic()
 		chvt 1
 	fi
 
+	echo "$@"
 	# Disallow console access
 	if [ -n "${panic}" ]; then
 		sleep ${panic}
@@ -44,7 +45,6 @@ panic()
 	fi
 	modprobe i8042
 	modprobe atkbd
-	echo "$@"
 	REASON="$@" PS1='(initramfs) ' /bin/sh -i </dev/console >/dev/console 2>&1
 }
 
