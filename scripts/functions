@@ -40,6 +40,7 @@ panic()
 	echo "$@"
 	# Disallow console access
 	if [ -n "${panic}" ]; then
+		echo "Rebooting automatically due to panic= boot argument"
 		sleep ${panic}
 		reboot
 	fi
