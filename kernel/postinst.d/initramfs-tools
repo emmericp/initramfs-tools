@@ -9,19 +9,16 @@ if [ -z "${version}" ]; then
 	exit 2
 fi
 
-# kernel-package passes an extra arg
+# exit if custom kernel does not need an initramfs
+if [ -n "${KERNEL_PACKAGE_VERSION}" ] && [ "$INITRD" = 'No' ]; then
+	exit 0
+fi
+
+# absolute file name of kernel image may be passed as a second argument;
+# create the initrd in the same directory
 if [ -n "$2" ]; then
-	if [ -n "${KERNEL_PACKAGE_VERSION}" ]; then
-		# exit if custom kernel does not need an initramfs
-		if [ "$INITRD" = 'No' ]; then
-			exit 0
-		fi
-		bootdir=$(dirname "$2")
-		bootopt="-b ${bootdir}"
-	else
-		# official Debian linux-images take care themself
-		exit 0
-	fi
+	bootdir=$(dirname "$2")
+	bootopt="-b ${bootdir}"
 fi
 
 # avoid running multiple times
@@ -33,4 +30,4 @@ if [ -n "$DEB_MAINT_PARAMS" ]; then
 fi
 
 # we're good - create initramfs.  update runs do_bootloader
-update-initramfs -c -t -k "${version}" ${bootopt} >&2
+INITRAMFS_TOOLS_KERNEL_HOOK=1 update-initramfs -c -t -k "${version}" ${bootopt} >&2

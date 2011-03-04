@@ -14,17 +14,28 @@ set -e
 
 [ -r ${CONF} ] && . ${CONF}
 
-if	   $USETRIGGERS						\
-	&& [ x"${DPKG_MAINTSCRIPT_PACKAGE:-}" != x ]		\
-	&& [ $# = 1 ]	 					\
-	&& [ x"$1" = x-u ]					\
-	&& dpkg-trigger --check-supported 2>/dev/null
-then
-	if dpkg-trigger --no-await update-initramfs; then
-		echo "update-initramfs: deferring update (trigger activated)"
+case "$DPKG_MAINTSCRIPT_PACKAGE" in
+linux-image-*)
+	if [ -z "$INITRAMFS_TOOLS_KERNEL_HOOK" ]; then
+		# kernel maintainer script called us directly; ignore
+		# it and let the hook script handle it instead
+		echo "update-initramfs: deferring update (hook will be called later)"
 		exit 0
 	fi
-fi
+	;;
+?*)
+	if	   $USETRIGGERS						\
+		&& [ $# = 1 ]						\
+		&& [ x"$1" = x-u ]					\
+		&& dpkg-trigger --check-supported 2>/dev/null
+	then
+		if dpkg-trigger --no-await update-initramfs; then
+			echo "update-initramfs: deferring update (trigger activated)"
+			exit 0
+		fi
+	fi
+	;;
+esac
 
 usage()
 {
