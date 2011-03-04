@@ -4,7 +4,10 @@ version="$1"
 bootopt=""
 
 # passing the kernel version is required
-[ -z "${version}" ] && exit 0
+if [ -z "${version}" ]; then
+	echo >&2 "W: initramfs-tools: ${DPKG_MAINTSCRIPT_PACKAGE:-kernel package} did not pass a version number"
+	exit 0
+fi
 
 # kernel-package passes an extra arg
 if [ -n "$2" ]; then
