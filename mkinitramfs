@@ -188,7 +188,7 @@ export BUSYBOX
 # Private, used by 'catenate_cpiogz'.
 export __TMPCPIOGZ
 
-for d in bin conf/conf.d etc lib/modules sbin scripts ${MODULESDIR}; do
+for d in bin conf/conf.d etc lib/modules run sbin scripts ${MODULESDIR}; do
 	mkdir -p "${DESTDIR}/${d}"
 done
 
