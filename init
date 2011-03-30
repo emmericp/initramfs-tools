@@ -26,7 +26,8 @@ fi
 mkdir /dev/pts
 mount -t devpts -o noexec,nosuid,gid=5,mode=0620 none /dev/pts || true
 > /dev/.initramfs-tools
-mkdir /dev/.initramfs
+mount -t tmpfs -o nodev,noexec,nosuid,mode=0755 none /run
+mkdir /run/initramfs
 
 # Export the dpkg architecture
 export DPKG_ARCH=
@@ -160,7 +161,7 @@ for x in $(cat /proc/cmdline); do
 	debug)
 		debug=y
 		quiet=n
-		exec >/dev/.initramfs/initramfs.debug 2>&1
+		exec >/run/initramfs/initramfs.debug 2>&1
 		set -x
 		;;
 	debug=*)
@@ -226,6 +227,13 @@ run_scripts /scripts/init-bottom
 # Move virtual filesystems over to the real filesystem
 mount -n -o move /sys ${rootmnt}/sys
 mount -n -o move /proc ${rootmnt}/proc
+
+# Loosing information on old boxes without /run
+if [ -d ${rootmnt}/run ]; then
+	mount -n -o move /run ${rootmnt}/run
+else
+	umount /run
+fi
 
 validate_init() {
 	checktarget="${1}"
