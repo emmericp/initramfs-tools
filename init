@@ -223,10 +223,18 @@ maybe_break bottom
 run_scripts /scripts/init-bottom
 [ "$quiet" != "y" ] && log_end_msg
 
-# Loosing information on old boxes without /run
+# Preserve information on old systems without /run on the rootfs
 if [ -d ${rootmnt}/run ]; then
 	mount -n -o move /run ${rootmnt}/run
 else
+	# The initramfs udev database must be migrated:
+	if [ -d /run/udev ] && [ ! -d /dev/.udev ]; then
+		mv /run/udev /dev/.udev
+	fi
+	# The initramfs debug info must be migrated:
+	if [ -d /run/initramfs ] && [ ! -d /dev/.initramfs ]; then
+		mv /run/initramfs /dev/.initramfs
+	fi
 	umount /run
 fi
 
