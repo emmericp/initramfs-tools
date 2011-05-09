@@ -223,16 +223,16 @@ maybe_break bottom
 run_scripts /scripts/init-bottom
 [ "$quiet" != "y" ] && log_end_msg
 
-# Move virtual filesystems over to the real filesystem
-mount -n -o move /sys ${rootmnt}/sys
-mount -n -o move /proc ${rootmnt}/proc
-
 # Loosing information on old boxes without /run
 if [ -d ${rootmnt}/run ]; then
 	mount -n -o move /run ${rootmnt}/run
 else
 	umount /run
 fi
+
+# Move virtual filesystems over to the real filesystem
+mount -n -o move /sys ${rootmnt}/sys
+mount -n -o move /proc ${rootmnt}/proc
 
 validate_init() {
 	checktarget="${1}"
