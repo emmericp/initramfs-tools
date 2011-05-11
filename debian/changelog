@@ -1,3 +1,84 @@
+initramfs-tools (0.99) unstable; urgency=low
+
+  Release "scarpe rotte e pur bisogna andar"
+
+  [ maximilian attems ]
+  * [ce45cd0] update-initramfs: Show the mkinitramfs on error message.
+  * [5b84e5b] maintainer-notes.html: Fix email to send patches to.
+  * [ec6a77f] doc: s/ressources/resources/
+  * [3c717fa] initramfs-tools: preinst use blkid for uuid generation if around.
+    (Closes: #609964)
+  * [8e2ffcd] postinst cleanup very old dpkg trigger comparison.
+  * [78cdb26] mkinitramfs: Add support for xz compression. (closes: #626446)
+  * [f5b8347] hook-functions: Cleanup ref to ide-disk.
+  * [6cab0ec] initramfs-tools: cleanup any usplash traces. (closes: #620924)
+  * [08d4895] initramfs-tools: Remove mkinitramfs-kpkg.
+    (Closes: #454934, #502792)
+  * [0ed6376] initramfs-tools: add hid_sunplus to listed keyboard drivers.
+  * [5f53d3b] init: load netconsole after loading network drivers.
+    Thanks Ferenc Wagner <wferi@niif.hu> (Closes: #596742)
+  * [7ff2998] debian/copyright: Update authorlist and year attribution.
+  * [e789cdd] maintainer-notes: Use git dch --multimaint-merge on examples.
+  * [17296ff] dep_add_modules: Use hidden_dep_add_modules for ubifs.
+  * [3d44bfb] hidden_dep_add: Use mika's variadic function from $2 on.
+  * [8f8299d] mkinitramfs: copy over on build instead of using symlink tree.
+    (Closes: #338405, #506540)
+  * [f5afa6a] mkinitramfs: Add lib search path + run full ldconfig in
+    initramfs. (Closes: #612633, #619670)
+  * [259ad09] mkinitramfs: creat /run initramfs directory.
+  * [5add333] initramfs-tools: init mount /run tmpfs.
+  * [74109b9] init: No need to touch /dev/.initramfs.
+  * [8e7620a] hook-functions: xhci-hcd got renamed. (Closes: #625224)
+    Thanks to Matthew Wilcox <willy@linux.intel.com>
+
+  [ Tim Small ]
+  * [1fe9f78] Add Documentation for modules=list in initramfs.conf(5).
+    (Closes: #603903)
+
+  [ Ben Hutchings ]
+  * [c018886] kernel hooks: Treat missing version argument as an error.
+  * [58ee42c] kernel hooks: Enable error-exit (sh -e).
+  * [7866542] update-initramfs: Depend on kernel hook scripts rather than
+    $ramdisk invocation.
+  * [43fe8e6] update-initramfs: Remove support for 'do_bootloader' and
+    specific boot loaders. (closes: #594189)
+
+  [ Gianluigi Tiesi ]
+  * [9c25269] mkinitramfs: misleading message in verbose mode.
+    (Closes: #611046)
+
+  [ Timo Juhani Lindfors ]
+  * [871ffe7] initramfs-tools: Make panic message visible even if panic=
+    is used.
+  * [2525b00] initramfs-tools: Inform the user about reboot on panic=.
+
+  [ Michael Prokop ]
+  * [465a5f1] hidden_dep_add_modules(): make it dynamically to support more
+    than 3 arguments as well.
+  * [3323930] Use --check=crc32 option for xz compression.
+    Thanks to Ulrich Dangel <mru@grml.org>
+  * [bedf1e3] Use -8 for compression with xz.
+  * [adce374] docs: fix wording ("allows *one* to") to make lintian happy.
+  * [ecbc54a] Bump Standards-Version to 3.9.2.
+
+  [ Evan Broder ]
+  * [ad1a594] initramfs-tools: Fix handling of numeric root= arguments to be
+     udev-friendly. (Closes: #501969, #606806)
+
+  [ Christian Hofstaedtler ]
+  * [e34eca4] init: move /proc after moving other filesystems.
+
+  [ Roger Leigh ]
+  * [10990ab] init: Preserve state on old boxes without /run on rootfs.
+  * [4d08c2e] init: sync mount options with the defaults in initscripts.
+    (Closes: #621803)
+  * [20c43ce] init: Don't use "none" as a mount fsname (Closes: #603858)
+
+  [ Michael Tokarev ]
+  * [ec83abd] mkinitramfs: No need to warn about md-root busybox dep.
+
+ -- maximilian attems <maks@debian.org>  Wed, 11 May 2011 23:38:18 +0200
+
 initramfs-tools (0.98.8) unstable; urgency=high
 
   [ maximilian attems ]
@@ -9,7 +90,6 @@ initramfs-tools (0.98.8) unstable; urgency=high
   [ Ben Hutchings ]
   * [78d9e04] initramfs-tools: Handle hidden dependency of libcrc32c on
     crc32c. (Closes: #608538)
-
 
  -- maximilian attems <maks@debian.org>  Fri, 28 Jan 2011 15:11:10 +0100
 
