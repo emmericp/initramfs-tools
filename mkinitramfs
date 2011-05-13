@@ -141,10 +141,10 @@ if ! command -v "${compress}" >/dev/null 2>&1; then
 	COMPRESS=gzip
 fi
 
-if ! `grep -q -i ^config_rd_${COMPRESS%p} /boot/config-${version}` ; then
+if dpkg --compare-versions "${version}" lt "2.6.38"; then
 	compress=gzip
 	[ "${verbose}" = y ] && \
-		echo "linux-2.6 misses ${COMPRESS} support, using gzip"
+		echo "linux-2.6 likely misses ${COMPRESS} support, using gzip"
 fi
 
 [ "${compress}" = lzop ] && compress="lzop -9"
