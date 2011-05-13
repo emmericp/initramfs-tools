@@ -105,12 +105,6 @@ else
 	version="${1}"
 fi
 
-# Check that we're using a new enough kernel version, first for ourselves,
-# then for each of the hooks, which can have a MINKVER variable defined
-check_minkver ${version}
-check_minkver ${version} /usr/share/initramfs-tools/hooks
-check_minkver ${version} ${CONFDIR}/hooks
-
 case "${version}" in
 /lib/modules/*/[!/]*)
 	;;
