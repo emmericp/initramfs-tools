@@ -176,6 +176,10 @@ generate_initramfs()
 		mkinitramfs_return="$?"
 		remove_initramfs_bak
 		rm -f "${initramfs}.new"
+		if [ "$mkinitramfs_return" = "2" ]; then
+			# minversion wasn't met, exit 0
+			exit 0
+		fi
 		echo "update-initramfs: failed for ${initramfs} with $mkinitramfs_return." >&2
 		exit $mkinitramfs_return
 	fi

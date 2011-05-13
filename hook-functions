@@ -533,3 +533,41 @@ cache_run_scripts()
 		echo "[ -e /conf/param.conf ] && . /conf/param.conf" >> ${initdir}/ORDER
 	done
 }
+
+# minimal supported kernel version
+check_minkver()
+{
+	local curversion initdir DPKG_ARCH minversion cm_x tmp
+
+	curversion="${1:-}"
+	initdir="${2:-}"
+	if [ -z "${initdir}" ]; then
+		case ${DPKG_ARCH:-} in
+			ia64|hppa)
+				minversion="2.6.15"
+			;;
+			*)
+				minversion="2.6.12"
+			;;
+		esac
+		if dpkg --compare-versions "${curversion}" lt "${minversion}"; then
+			echo "W: kernel ${curversion} too old for initramfs on ${DPKG_ARCH}" >&2
+			echo "W: not generating requested initramfs for kernel ${curversion}" >&2
+			exit 2
+		fi
+		return 0
+	fi
+	set_initlist
+	for cm_x in ${initlist:-}; do
+		# sed:  keep last line starting with MINKVER=,
+		#	remove MINKVER= and trailing space
+		minver=$(sed '/^MINKVER=/!d;$!d;s/^MINKVER=//;s/[[:space:]]*$//' "${initdir}/${cm_x}")
+		if [ -z "${tmp:-}" ]; then
+			continue
+		elif dpkg --compare-versions "${curversion}" lt "${minver}"; then
+			echo "W: ${cm_x} hook script requires at least kernel version ${minver}" >&2
+			echo "W: not generating requested initramfs for kernel ${curversion}" >&2
+			exit 2
+		fi
+	done
+}
