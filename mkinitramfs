@@ -165,6 +165,7 @@ if [ ! -e "${MODULESDIR}/modules.dep" ]; then
 	depmod ${version}
 fi
 
+[ -n "${TMPDIR}" ] && [ ! -w "${TMPDIR}" ] && unset TMPDIR
 DESTDIR="$(mktemp -d ${TMPDIR:-/tmp}/mkinitramfs_XXXXXX)" || exit 1
 chmod 755 "${DESTDIR}"
 
