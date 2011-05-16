@@ -83,11 +83,6 @@ manual_add_modules()
 				continue
 			fi
 
-			if [ ! -e "${DESTDIR}/lib/udev/firmware.agent" ] \
-			&& [ -e "/lib/udev/firmware.agent" ]; then
-				copy_exec /lib/udev/firmware.agent
-			fi
-
 			if [ -e "/lib/firmware/${version}/${firmware}" ]; then
 				copy_exec "/lib/firmware/${version}/${firmware}"
 			else
