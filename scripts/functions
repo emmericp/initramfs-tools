@@ -72,7 +72,7 @@ set_initlist()
 		case ${si_x#${initdir}/} in
 		*[![:alnum:]\._-]*)
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: not alphanumeric or '_' file"
+			&& echo "$si_x ignored: not alphanumeric or '_' file" >&2
 			continue
 			;;
 		esac
@@ -80,21 +80,21 @@ set_initlist()
 		# skip non executable scripts
 		if [ ! -x ${si_x} ]; then
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: not executable"
+			&& echo "$si_x ignored: not executable" >&2
 			continue
 		fi
 
 		# skip directories
 		if [ -d ${si_x} ]; then
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: a directory"
+			&& echo "$si_x ignored: a directory" >&2
 			continue
 		fi
 
 		# skip bad syntax
 		if ! sh -n ${si_x} ; then
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: bad syntax"
+			&& echo "$si_x ignored: bad syntax" >&2
 			continue
 		fi
 
