@@ -46,6 +46,15 @@ for initramfs in "$@" ; do
 		exit 1
 	else
 		echo "${initramfs}"
-		zcat "${initramfs}" | cpio ${cpio_args}
+		if zcat -t "${initramfs}" >/dev/null 2>&1 ; then
+			zcat "${initramfs}" | cpio ${cpio_args}
+		elif xzcat -t "$initramfs" >/dev/null 2>&1 ; then
+			xzcat "$initramfs" | cpio ${cpio_args}
+		elif bzip2 -t "$initramfs" >/dev/null 2>&1 ; then
+			bzip2 -c -d "$initramfs" | cpio ${cpio_args}
+		elif lzop -t "$initramfs" >/dev/null 2>&1 ; then
+			lzop -c -d "$initramfs" | cpio ${cpio_args}
 		fi
+
+	fi
 done
