@@ -366,6 +366,19 @@ user to investigate the situation.
 panic "Frobnication failed"
 .RE
 
+.TP
+\fB\fI
+add_mountroot_fail_hook
+Registers the script as able to provide possible further information, in the
+event that the root device cannot be found. See the example script in the
+initramfs-tools examples directory for more information.
+.RS
+.PP
+.B Example:
+add_mountroot_fail_hook
+.RE
+
+
 .SS Subdirectories
 Both /usr/share/initramfs-tools/scripts and /etc/initramfs-tools/scripts
 contains the following subdirectories.

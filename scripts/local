@@ -1,5 +1,10 @@
 # Local filesystem mounting			-*- shell-script -*-
 
+root_missing()
+{
+	 [ ! -e "${ROOT}" ] || ! $(get_fstype "${ROOT}" >/dev/null) 
+}
+
 pre_mountroot()
 {
 	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-top"
@@ -23,18 +28,25 @@ pre_mountroot()
 
 	# If the root device hasn't shown up yet, give it a little while
 	# to deal with removable devices
-	if [ ! -e "${ROOT}" ] || ! $(get_fstype "${ROOT}" >/dev/null); then
+	if root_missing; then
 		log_begin_msg "Waiting for root file system"
 
 		# Default delay is 30s
 		slumber=${ROOTDELAY:-30}
 
 		slumber=$(( ${slumber} * 10 ))
-		while [ ! -e "${ROOT}" ] \
-		|| ! $(get_fstype "${ROOT}" >/dev/null); do
+		while root_missing; do
 			/bin/sleep 0.1
 			slumber=$(( ${slumber} - 1 ))
 			[ ${slumber} -gt 0 ] || break
+			
+			# Run failure hooks, hoping one of them can fix up
+			# the system and we can restart the wait loop.
+			# If they all fail, abort and move on to the panic
+			# handler and shell.
+			if root_missing && ! try_failure_hooks; then
+				break
+			fi
 		done
 
 		if [ ${slumber} -gt 0 ]; then
@@ -45,7 +57,7 @@ pre_mountroot()
 	fi
 
 	# We've given up, but we'll let the user fix matters if they can
-	while [ ! -e "${ROOT}" ]; do
+	while root_missing; do
 		# give hint about renamed root
 		case "${ROOT}" in
 		/dev/hd*)

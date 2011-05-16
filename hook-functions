@@ -513,6 +513,15 @@ EOF
 
 }
 
+
+# Add failure hook
+add_mountroot_fail_hook()
+{
+	mkdir -p /tmp/mountroot-fail-hooks.d
+	ln -s "$0" /tmp/mountroot-fail-hooks.d/"$1"
+}
+
+
 # cache boot scripts order
 cache_run_scripts()
 {

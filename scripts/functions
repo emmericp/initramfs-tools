@@ -31,6 +31,35 @@ log_end_msg()
 	_log_msg "done.\n"
 }
 
+# Run failure hooks.
+# When a failure hook exits "1", it has not done anything to correct the
+# system.  Exiting "0" means that something has been attempted to resolve
+# the lack of a root filesystem.
+# Hooks are run in lexigraphical order, and are responsible for removing
+# themselves if they should not re-run in a later cycle.  When one exits
+# "0", the stack is stopped, so the caller can return to the main rootfs
+# wait loop.
+try_failure_hooks()
+{
+	local hook
+
+	# Disable plymouth so text from hooks can be seen
+	if command -v chvt >/dev/null 2>&1; then
+		chvt 1
+	fi
+	if [ -x /bin/plymouth ] && plymouth --ping; then
+		/bin/plymouth hide-splash > /dev/null 2>&1
+	fi
+
+	for hook in /tmp/mountroot-fail-hooks.d/*; do
+		if [ -x ${hook} ] && ${hook} mountfail; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+
 panic()
 {
 	if command -v chvt >/dev/null 2>&1; then
