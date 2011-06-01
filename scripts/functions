@@ -44,8 +44,8 @@ panic()
 		sleep ${panic}
 		reboot
 	fi
-	modprobe i8042
-	modprobe atkbd
+	modprobe -v i8042
+	modprobe -v atkbd
 	REASON="$@" PS1='(initramfs) ' /bin/sh -i </dev/console >/dev/console 2>&1
 }
 
