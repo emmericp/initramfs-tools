@@ -16,10 +16,10 @@ prereqs)
 esac
 
 # sanity check
-[ -z "${blacklist}" ] && exit 0
+[ -z "${modprobe.blacklist}" ] && exit 0
 
 # write blacklist to modprobe.d
 IFS=','
-for b in ${blacklist}; do
+for b in ${modprobe.blacklist}; do
 	echo "blacklist $b" >> /etc/modprobe.d/initramfs.conf
 done

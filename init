@@ -51,7 +51,7 @@ export readonly=y
 export rootmnt=/root
 export debug=
 export panic=
-export blacklist=
+export modprobe.blacklist=
 export resume=
 export resume_offset=
 
@@ -174,8 +174,8 @@ for x in $(cat /proc/cmdline); do
 	break)
 		break=premount
 		;;
-	blacklist=*)
-		blacklist=${x#blacklist=}
+	modprobe.blacklist=*)
+		modprobe.blacklist=${x#blacklist=}
 		;;
 	netconsole=*)
 		netconsole=${x#netconsole=}
@@ -305,7 +305,7 @@ unset IP
 unset BOOT
 unset BOOTIF
 unset UBIMTD
-unset blacklist
+unset modprobe.blacklist
 unset break
 unset noresume
 unset panic
