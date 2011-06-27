@@ -358,13 +358,13 @@ dep_add_modules()
 	sys_walk_mod_add ${root_dev_path}
 
 	# catch old-style IDE
-	if [ -d "${DESTDIR}/lib/modules/${version}/kernel/drivers/ide" ]; then
+	if [ -e /sys/bus/ide/devices/ ]; then
 		sys_walk_modalias ${root_dev_path}
 		manual_add_modules ide-gd_mod
 		manual_add_modules ide-cd
 	fi
 
-	if [ -d "${DESTDIR}/lib/modules/${version}/kernel/drivers/scsi" ]; then
+	if [ -e /sys/bus/scsi/devices/ ]; then
 		manual_add_modules sd_mod
 	fi
 
