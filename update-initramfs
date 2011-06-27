@@ -455,7 +455,7 @@ done
 shift $((${OPTIND} - 1))
 
 if [ $# -ne 0 ]; then
-	echo "Invalid argument for option -k." >&2
+	echo "Invalid arguments see belows help:" >&2
 	usage
 fi
 
