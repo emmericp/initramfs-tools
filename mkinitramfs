@@ -316,7 +316,7 @@ fi
 [ "${verbose}" = y ] && echo "Building cpio ${outfile} initramfs"
 (
 # work around lack of "set -o pipefail" for the following pipe:
-# cd "${DESTDIR}" && find . | cpio --quiet -R 0:0 -o -H newc | gzip >"${outfile}" || exit 1
+# cd "${DESTDIR}" && find . | cpio --quiet -o -H newc | gzip >"${outfile}" || exit 1
 exec 3>&1
 eval `
 	# http://cfaj.freeshell.org/shell/cus-faq-2.html
@@ -325,7 +325,7 @@ eval `
 	{
 		find . 4>&-; echo "ec1=$?;" >&4
 	} | {
-		cpio --quiet -R 0:0 -o -H newc 4>&-; echo "ec2=$?;" >&4
+		cpio --quiet -o -H newc 4>&-; echo "ec2=$?;" >&4
 	} | ${compress} >"${outfile}"
 	echo "ec3=$?;" >&4
 `
