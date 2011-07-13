@@ -238,10 +238,6 @@ else
 	umount /run
 fi
 
-# Move virtual filesystems over to the real filesystem
-mount -n -o move /sys ${rootmnt}/sys
-mount -n -o move /proc ${rootmnt}/proc
-
 validate_init() {
 	checktarget="${1}"
 
@@ -315,5 +311,14 @@ unset resume
 unset resume_offset
 
 # Chain to real filesystem
-exec run-init ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
-panic "Could not execute run-init."
+if command -v switch_root >/dev/null 2>&1; then
+	exec switch_root ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
+elif command -v run-init >/dev/null 2>&1; then
+	# Move virtual filesystems over to the real filesystem
+	mount -n -o move /sys ${rootmnt}/sys
+	mount -n -o move /proc ${rootmnt}/proc
+
+	exec run-init ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
+fi
+echo "Something went badly wrong in the initramfs."
+panic "Please file a bug on initramfs-tools."
