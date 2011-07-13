@@ -11,7 +11,7 @@ Vcs-Git: git://git.debian.org/git/kernel/initramfs-tools.git
 Package: initramfs-tools
 Architecture: all
 Recommends: busybox (>= 1:1.01-3) | busybox-initramfs
-Depends: klibc-utils (>= 1.5.9-1), cpio, module-init-tools, udev, findutils (>= 4.2.24), ${misc:Depends}
+Depends: klibc-utils (>= 1.5.23-2~), cpio, module-init-tools, udev, findutils (>= 4.2.24), ${misc:Depends}
 Suggests: bash-completion
 Provides: linux-initramfs-tool
 Conflicts: usplash (<< 0.5.50)
