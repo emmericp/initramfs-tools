@@ -314,6 +314,8 @@ create()
 	fi
 
 	generate_initramfs
+
+	run_bootloader
 }
 
 update()
