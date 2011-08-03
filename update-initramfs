@@ -181,18 +181,6 @@ generate_initramfs()
 	fi
 }
 
-# lilo call
-run_lilo()
-{
-	# show lilo errors on failure
-	if ! lilo -t  > /dev/null 2>&1 ; then
-		echo "ERROR lilo fails for new ${initramfs}:" >&2
-		echo
-		lilo -t
-	fi
-	lilo
-}
-
 # Invoke bootloader
 run_bootloader()
 {
