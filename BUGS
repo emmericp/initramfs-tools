@@ -1,0 +1,157 @@
+Bugs
+----
+
+#633582 - "All files in initrd owned by root"
+  mika/user_permissions
+
+#649399 - "mark Multi-Arch: foreign"
+  mika/multi_arch_foreign
+
+#636495 "installs optimized libraries into the initramfs"
+  mika/optimized_lib_under_multiarch
+
+#597581 - "update-initramfs should not set PATH"
+  maks/path
+
+#409271 - NFSv4
+  see bugreport, limux project has something working, maybe they share it with us
+
+#512679 - '"more' pager is broken in initramfs shell"
+  see busybox upload for #588324 WRT ctrl-c -> needs testing with working job control
+
+#565225 - "don't assume RESUME partition will never change"
+  needs design decision
+
+#601324 - "PREREQ only honored inside single directory"
+  mika/prereq_docs
+
+#620814 - "fails to include essential module for other leg of md0"
+  needs decision
+
+#621375 - "backup_initramfs=yes"
+  needs decision
+
+#636697 - "no way to include library modules for libraries installed in multiarch path"
+  needs decision WRT patch
+
+#637481 - "/init: /init: 318: cannot open /root/dev/console: No such file"
+  needs decision
+
+#644850 - "linux-image-2.6.32-5-kirkwood: 2.6.32-38 does not recognise USB harddisks any longer"
+  waiting for feedback from bugreports
+
+#649288 - "missing new ELF interpreter /lib/arm-linux-gnueabihf/ld-linux.so.3 in initramfs on armhf"
+  needs closer look/work
+
+#639902 - "Alternate Recommends on busybox-static"
+  mika/busybox-static
+
+#509077 - "support alternate DHCP port and DHCP vendor-class-identifier"
+  needs decision
+
+#337176 - troubles due to 32-bit chroot on amd64
+  needs decision
+
+#619711 - console-setup: breaks copying keymap to initramfs
+  waiting for feedback
+
+#638068 - [bisected] initramfs-tools generates unbootable initrd.img on IA-64 platform (Itanium)
+  related to klibc/multiarch/issue?
+
+#588452 "softdep" modules not included in initramfs when MODULES=dep is specified
+  won't fix?
+
+#495946 initramfs-tools: potential race condition between nfsmounts in fstab and network interfaces
+  reassign to another package?
+
+#610462 mkinitramfs fails when RCS dir exists in /etc
+  mika/test_for_directory
+
+Timing issues:
+#644876 - Boot failure from software RAID1 + LVM2 by timing of mdadm + lvm initiation
+#616689 - Root-on-LVM setup fails often due to timing issues
+#633024 - Race condition when root filesystem is on a LV and mdadm array
+#603944 - retry mounting of root
+ -> Possible solution in #603944?
+
+Branch cleanup/merging/...
+--------------------------
+
+Merge ACK-ed branches, get rid of deprecated ones,...
+
+* ben/hook_pol
+* david/dynamic-blockdevs
+* david/misc
+* maks/bb
+* maks/blacklist
+* maks/bootloader
+* maks/btrfs
+* maks/clean_firmware.agent
+* maks/cleanup_ide
+* maks/control
+* maks/copyright
+* maks/dep_df
+* maks/dep_fallback
+* maks/desc
+* maks/doc_mail
+* maks/doc_multimaint
+* maks/doc_typo
+* maks/dracut_hid
+* maks/error_message
+* maks/init
+* maks/inst_dir
+* maks/klibc
+* maks/lessawk
+* maks/lib
+* maks/md_partition
+* maks/minversion
+* maks/mk_show_error
+* maks/mkinitramfs_cp
+* maks/mount_failure
+* maks/net
+* maks/netconsole_later
+* maks/nogrep
+* maks/nuke_minversion
+* maks/nuke_usplash
+* maks/nuke_wrapper
+* maks/num_root
+* maks/panic
+* maks/postinst_clean
+* maks/preinst_blkid
+* maks/release
+* maks/run
+* maks/syswalk
+* maks/tmp
+* maks/ubifs_clean
+* maks/xhci
+* maks/xz
+* maks/zip_error
+* mika/fix_run
+* mika/multiple-breaks
+* mika/ubifs_clean
+* mjt/bb
+* timo/panic
+
+Wishlist items
+--------------
+
+#344641 please add means to run hooks/install scripts only for specific versions
+#403846 support mounting / at a partition offset (-o offset=)
+#450623 please support copying modules from other places than /
+#454665 initramfs-tools: busybox depends should include busybox-static
+#468114 Loopback file system support.
+#488969 please warn if a non-executable file in scripts/*/* is found
+#534170 initramfs-tools: do not install persistent files in initrd on request / if necessary
+#565696 initramfs-tools: Support for AoE
+#567468 please set hostname via sysctl early on
+#570522 initramfs-tools: support generation of initramfs for other/non-running systems
+#573580 new option to ignore hooks etc. under /usr/share/initramfs-tools
+#579336 update-initramfs: recognize (and ignore?) moduleless/ramdiskless kernels.
+#585897 initramfs-tools: allow multiple break points
+#588770 initramfs-tools: modules=dep in initramfs.conf breaks suspend-to-disk
+#591056 hook/boot scripts in /etc/initramfs-tools should override those in /u/s/initramfs-tools
+#592519 initramfs-tools: COMPRESS option should be more flexible
+#597580 initramfs-tools hook functions copy_exec should allow use of PATH
+#620041 Please configure the font and the keymap during initrd phase
+#624692 mkinitramfs: display on verbose mode modprobe warnings
+#639876 cryptsetup: add usb modules to initramfs
