@@ -4,12 +4,6 @@ Bugs
 #633582 - "All files in initrd owned by root"
   mika/user_permissions
 
-#649399 - "mark Multi-Arch: foreign"
-  mika/multi_arch_foreign
-
-#636495 "installs optimized libraries into the initramfs"
-  mika/optimized_lib_under_multiarch
-
 #597581 - "update-initramfs should not set PATH"
   maks/path
 
@@ -42,9 +36,6 @@ Bugs
 
 #649288 - "missing new ELF interpreter /lib/arm-linux-gnueabihf/ld-linux.so.3 in initramfs on armhf"
   needs closer look/work
-
-#639902 - "Alternate Recommends on busybox-static"
-  mika/busybox-static
 
 #509077 - "support alternate DHCP port and DHCP vendor-class-identifier"
   needs decision
@@ -138,7 +129,6 @@ Wishlist items
 #344641 please add means to run hooks/install scripts only for specific versions
 #403846 support mounting / at a partition offset (-o offset=)
 #450623 please support copying modules from other places than /
-#454665 initramfs-tools: busybox depends should include busybox-static
 #468114 Loopback file system support.
 #488969 please warn if a non-executable file in scripts/*/* is found
 #534170 initramfs-tools: do not install persistent files in initrd on request / if necessary
