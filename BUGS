@@ -70,58 +70,17 @@ Branch cleanup/merging/...
 
 Merge ACK-ed branches, get rid of deprecated ones,...
 
-* ben/hook_pol
 * david/dynamic-blockdevs
 * david/misc
-* maks/bb
 * maks/blacklist
-* maks/bootloader
-* maks/btrfs
-* maks/clean_firmware.agent
-* maks/cleanup_ide
-* maks/control
-* maks/copyright
-* maks/dep_df
-* maks/dep_fallback
-* maks/desc
-* maks/doc_mail
-* maks/doc_multimaint
-* maks/doc_typo
-* maks/dracut_hid
 * maks/error_message
-* maks/init
 * maks/inst_dir
-* maks/klibc
-* maks/lessawk
-* maks/lib
-* maks/md_partition
-* maks/minversion
-* maks/mk_show_error
-* maks/mkinitramfs_cp
 * maks/mount_failure
-* maks/net
-* maks/netconsole_later
-* maks/nogrep
-* maks/nuke_minversion
-* maks/nuke_usplash
-* maks/nuke_wrapper
-* maks/num_root
-* maks/panic
-* maks/postinst_clean
-* maks/preinst_blkid
-* maks/release
-* maks/run
-* maks/syswalk
-* maks/tmp
-* maks/ubifs_clean
-* maks/xhci
-* maks/xz
-* maks/zip_error
-* mika/fix_run
+* maks/path
+* master
 * mika/multiple-breaks
-* mika/ubifs_clean
-* mjt/bb
-* timo/panic
+* mika/prereq_docs
+* mika/user_permissions
 
 Wishlist items
 --------------
