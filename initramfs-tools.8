@@ -143,6 +143,12 @@ Hooks can be found in two places: /usr/share/initramfs-tools/hooks and
 initramfs-image and are responsible for including all the necessary components
 in the image itself. No guarantees are made as to the order in which the
 different scripts are executed unless the prereqs are setup in the script.
+Please notice that PREREQ is only honored inside a single directory.  So first
+the scripts in /usr/share/initramfs-tools are ordered according to their PREREQ
+values and executed. Then all scripts in /etc/initramfs-tools are ordered
+according to \fBtheir\fR PREREQ values and executed. This mean that currently
+there is no possibility to have a local script (/etc/initramfs-tools) get
+executed before one from the package (/usr/share/initramfs-tools).
 
 .SS Header
 In order to support prereqs, each script should begin with the following lines:
