@@ -98,13 +98,23 @@ mountroot()
 	# FIXME This has no error checking
 	modprobe ${FSTYPE}
 
-	# FIXME This has no error checking
 	# Mount root
-	if [ "${FSTYPE}" != "unknown" ]; then
-		mount ${roflag} -t ${FSTYPE} ${ROOTFLAGS} ${ROOT} ${rootmnt}
-	else
-		mount ${roflag} ${ROOTFLAGS} ${ROOT} ${rootmnt}
-	fi
+	tries=0
+	ret=1
+	while [ $tries -lt 2 ] && [ $ret -ne 0 ]; do
+		if [ "${FSTYPE}" != "unknown" ]; then
+			mount ${roflag} -t ${FSTYPE} ${ROOTFLAGS} ${ROOT} ${rootmnt}
+			ret=$?
+		else
+			mount ${roflag} ${ROOTFLAGS} ${ROOT} ${rootmnt}
+			ret=$?
+		fi
+		if [ $ret -ne 0 ]; then
+			log_failure_msg "failed attempt $tries to mount $ROOT as root"
+			wait_for_udev 10
+			tries=$((tries+1))
+		fi
+	done
 
 	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-bottom"
 	run_scripts /scripts/local-bottom
