@@ -10,10 +10,11 @@ catenate_cpiogz() {
 	cat "${1}" >>"${__TMPCPIOGZ}"
 }
 
+# force_load module [args...]
 force_load()
 {
-		manual_add_modules ${@}
-		echo "${@}" >>"${DESTDIR}/conf/modules"
+	manual_add_modules "$1"
+	echo "${@}" >>"${DESTDIR}/conf/modules"
 }
 
 # Takes a file containing a list of modules to be added as an
@@ -42,17 +43,20 @@ add_modules_from_file()
 # Add dependent modules + eventual firmware
 manual_add_modules()
 {
-	local kmod firmware
+	local prefix kmod firmware
 
-	for kmod in $(modprobe --set-version="${version}" --ignore-install \
-	--quiet --show-depends "${1}" | awk '/^insmod/ { print $2 }'); do
+	modprobe --all --set-version="${version}" --ignore-install --quiet --show-depends "$@" |
+	while read prefix kmod ; do
+		if [ "${prefix}" != "insmod" ]; then
+			continue
+		fi
+
 		# Prune duplicates
 		if [ -e "${DESTDIR}/${kmod}" ]; then
 			continue
 		fi
 
-		mkdir -p "${DESTDIR}/$(dirname "${kmod}")"
-		cp -pL "${kmod}" "${DESTDIR}/$(dirname "${kmod}")"
+		install -Dpm 644 "$kmod" "${DESTDIR}/$kmod"
 		if [ "${verbose}" = "y" ]; then
 			echo "Adding module ${kmod}"
 		fi
@@ -74,10 +78,9 @@ manual_add_modules()
 					continue
 				fi
 
-				if grep -q "^$(basename "${kmod}" .ko)[[:space:]]" \
-				/proc/modules \
-				|| grep -q "^$(basename "${kmod}" .ko)" \
-				"${CONFDIR}/modules"; then
+				kmod_modname="${kmod##*/}"
+				kmod_modname="${kmod_modname%.ko}"
+				if grep -q "^$kmod_modname\\>" /proc/modules "${CONFDIR}/modules"; then
 					echo "W: Possible missing firmware /lib/firmware/${firmware} for module $(basename ${kmod} .ko)" >&2
 				fi
 				continue
@@ -152,6 +155,7 @@ copy_exec() {
 copy_modules_dir()
 {
 	local kmod exclude
+	local modules=
 	local dir="$1"
 	shift
 
@@ -168,9 +172,10 @@ copy_modules_dir()
 		exclude="${exclude:-} -name $1 -prune -o "
 		shift
 	done
-	for kmod in $(find "${MODULESDIR}/${dir}" ${exclude:-} -name '*.ko' -print); do
-		manual_add_modules $(basename ${kmod} .ko)
+	for kmod in $(find "${MODULESDIR}/${dir}" ${exclude:-} -name '*.ko' -printf '%f\n'); do
+		modules="$modules ${kmod%.ko}"
 	done
+	manual_add_modules $modules
 }
 
 # walk /sys for relevant modules
@@ -211,7 +216,8 @@ sys_walk_modalias()
 # find and only copy root relevant modules
 dep_add_modules()
 {
-	local block minor root FSTYPE root_dev_path x
+	local block minor root FSTYPE root_dev_path
+	local modules=
 
 	# require mounted sysfs
 	if [ ! -d /sys/devices/ ]; then
@@ -271,7 +277,7 @@ dep_add_modules()
 	fi
 
 	# Add rootfs
-	manual_add_modules "${FSTYPE}"
+	modules="$modules ${FSTYPE}"
 
 	# lvm or luks root
 	if [ "${root#/dev/mapper/}" != "${root}" ] \
@@ -366,20 +372,19 @@ dep_add_modules()
 	# catch old-style IDE
 	if [ -e /sys/bus/ide/devices/ ]; then
 		sys_walk_modalias ${root_dev_path}
-		manual_add_modules ide-gd_mod
-		manual_add_modules ide-cd
+		modules="$modules ide-gd_mod ide-cd"
 	fi
 
 	if [ -e /sys/bus/scsi/devices/ ]; then
-		manual_add_modules sd_mod
+		modules="$modules sd_mod"
 	fi
 
 	if [ -e /sys/bus/mmc/devices/ ]; then
-		manual_add_modules mmc_block
+		modules="$modules mmc_block"
 	fi
 
 	if [ -e /sys/bus/virtio ] ; then
-		manual_add_modules virtio_pci
+		modules="$modules virtio_pci"
 	fi
 
 	if [ -e /sys/bus/i2o/devices/ ]; then
@@ -388,97 +393,82 @@ dep_add_modules()
 	fi
 
 	if [ -e /sys/bus/ps3_system_bus/ ]; then
-		for x in ps3disk ps3rom ps3-gelic ps3_sys_manager; do
-			manual_add_modules "${x}"
-		done
+		modules="$modules ps3disk ps3rom ps3-gelic ps3_sys_manager"
 	fi
 
 	if [ -e /sys/bus/vio/ ]; then
-		for x in sunvnet sunvdc; do
-			manual_add_modules "${x}"
-		done
+		modules="$modules sunvnet sunvdc"
 	fi
+
+	manual_add_modules $modules
 }
 
 
 # The modules "most" classes added per default to the initramfs
 auto_add_modules()
 {
-	case "${1:-}" in
-	base)
-		for x in ehci-hcd ohci-hcd uhci-hcd usbhid xhci xhci-hcd \
-		hid-apple hid-cherry hid-logitech hid-logitech-dj \
-		hid-microsoft hid-sunplus btrfs ext2 ext3 ext4 isofs \
-		jfs nfs reiserfs udf xfs af_packet atkbd i8042 virtio_pci; do
-			manual_add_modules "${x}"
-		done
-	;;
-	net)
-		copy_modules_dir kernel/drivers/net \
-			appletalk arcnet bonding can hamradio irda pcmcia \
-			tokenring usb wan wimax wireless
-	;;
-	ide)
-		copy_modules_dir kernel/drivers/ide
-	;;
-	mmc)
-		copy_modules_dir kernel/drivers/mmc
-	;;
-	scsi)
-		copy_modules_dir kernel/drivers/scsi
-		for x in mptfc mptsas mptscsih mptspi zfcp; do
-			manual_add_modules "${x}"
-		done
-	;;
-	ata)
-		copy_modules_dir kernel/drivers/ata
-	;;
-	block)
-		copy_modules_dir kernel/drivers/block
-	;;
-	ubi)
-		for x in deflate zlib lzo ubi ubifs; do
-			manual_add_modules "${x}"
-		done
-	;;
-	ieee1394)
-		for x in ohci1394 sbp2; do
-			manual_add_modules "${x}"
-		done
-	;;
-	firewire)
-		for x in firewire-ohci  firewire-sbp2; do
-			manual_add_modules "${x}"
-		done
-	;;
-	i2o)
-		for x in i2o_block; do
-			manual_add_modules "${x}"
-		done
-	;;
-	dasd)
-		for x in dasd_diag_mod dasd_eckd_mod dasd_fba_mod; do
-			manual_add_modules "${x}"
-		done
-	;;
-	usb_storage)
-		copy_modules_dir kernel/drivers/usb/storage
-	;;
-	*)
-		auto_add_modules base
-		auto_add_modules net
-		auto_add_modules ide
-		auto_add_modules scsi
-		auto_add_modules block
-		auto_add_modules ata
-		auto_add_modules i2o
-		auto_add_modules dasd
-		auto_add_modules ieee1394
-		auto_add_modules firewire
-		auto_add_modules mmc
-		auto_add_modules usb_storage
-	;;
-	esac
+	local arg
+	local modules=
+
+	if [ "$#" -eq 0 ] ; then
+		set -- base net ide scsi block ata i2o dasd ieee1394 firewire mmc usb_storage
+	fi
+
+	for arg in "$@" ; do
+		case "$arg" in
+		base)
+			modules="$modules ehci-hcd ohci-hcd uhci-hcd usbhid"
+			modules="$modules xhci xhci-hcd"
+			modules="$modules hid-apple hid-cherry hid-logitech"
+			modules="$modules hid-logitech-dj"
+			modules="$modules hid-microsoft hid-sunplus"
+			modules="$modules btrfs ext2 ext3 ext4 ext4dev "
+			modules="$modules isofs jfs nfs reiserfs udf xfs"
+			modules="$modules af_packet atkbd i8042 virtio_pci"
+		;;
+		net)
+			copy_modules_dir kernel/drivers/net \
+				appletalk arcnet bonding can hamradio irda \
+				pcmcia tokenring usb wan wimax wireless
+		;;
+		ide)
+			copy_modules_dir kernel/drivers/ide
+		;;
+		mmc)
+			copy_modules_dir kernel/drivers/mmc
+		;;
+		scsi)
+			copy_modules_dir kernel/drivers/scsi
+			modules="$modules mptfc mptsas mptscsih mptspi zfcp"
+		;;
+		ata)
+			copy_modules_dir kernel/drivers/ata
+		;;
+		block)
+			copy_modules_dir kernel/drivers/block
+		;;
+		ubi)
+			modules="$modules deflate zlib lzo ubi ubifs"
+		;;
+		ieee1394)
+			modules="$modules ohci1394 sbp2"
+		;;
+		firewire)
+			modules="$modules firewire-ohci firewire-sbp2"
+		;;
+		i2o)
+			modules="$modules i2o_block"
+		;;
+		dasd)
+			modules="$modules dasd_diag_mod dasd_eckd_mod dasd_fba_mod"
+		;;
+		usb_storage)
+			copy_modules_dir kernel/drivers/usb/storage
+		;;
+		esac
+	done
+
+	manual_add_modules $modules
 }
 
 # 'depmod' only looks at symbol dependencies; there is no way for
@@ -487,16 +477,15 @@ auto_add_modules()
 # fixed, we need to handle those hidden dependencies.
 hidden_dep_add_modules()
 {
+	local modules=
 	for dep in "lib/libcrc32c crc32c" "fs/ubifs/ubifs deflate zlib lzo"; do
 		set -- $dep
 		if [ -f "${DESTDIR}/lib/modules/${version}/kernel/$1.ko" ]; then
 			shift
-			for i in "$@" ; do
-				manual_add_modules "$i"
-				shift
-			done
+			modules="$modules $@"
 		fi
 	done
+	manual_add_modules $modules
 }
 
 # mkinitramfs help message
