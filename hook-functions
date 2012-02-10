@@ -173,6 +173,60 @@ copy_modules_dir()
 	done
 }
 
+# sed_quote separator string
+# Prefixes occurences of sed special characters and separator with \ in string.
+# Suggested separators: , / (space) .
+# Note that the character is prefixed with \ so characters that get special meaning
+# will not work as separator. eg: n \ ? ( { ) }
+sed_quote()
+{
+        echo -n "$2" | sed -e 's/\n/\\n/' -e 's|\([][*.$|'"$1"']\)|\\\1|g'
+}
+
+# Include a module dynamically loaded by a library
+# $1 - directory to search for the library (may be / to search all of initramfs)
+#      directory should start with /
+# $2 - library to search for
+# $3 - module to include relative to library found
+
+# example: lib_module /lib 'libc.so.*' 'libnss_dns.so.*'
+#          lib_module /usr/lib 'libpango-*.so.*' 'pango/*/modules/pango-basic-fc.so'
+
+# Does not handle whitespace in module names.
+
+# When the library is located in a directory including newline in the path the
+# module may not be found or a module in a different directory might be used.
+# This is a limitation of shellutils; find has -print0 but the output is non-processable.
+
+# The read option -r should prevent expansion of \ in read module paths.
+# The IFS="" should prevent splitting of whitespace in module paths.
+
+# Works with bash and dash, posh can't execute this script because it cannot glob partially
+# quoted strings.
+lib_module()
+{
+        local dir lib mod lib_dir i j dest_quoted REPLY
+        # Shell (possibly) special characters: * ? (space) \ ; $ { } [ ] ( ) & | < > (tab) (newline)
+        # Out of these * ? are allowed, \ ; $ {} [] () <> & | is not re-expanded in variable substitution.
+        # (space) (tab) (newline) delimit words and to allow * ? to be expanded these are not supported.
+        # sed special characters: * \ . $ ^ [ ] | (newline) (character used as separator in s command)
+        dir="$1"
+        lib="$2"
+        mod="$3"
+        if echo -n "$mod" | LC_CTYPE=C grep "[[:space:]]" >&2 ; then # space tab newline, possibly vtab and cr
+                echo lib_module: module name contains whitespace. >&2
+                return 1
+        fi
+        dest_quoted="$(sed_quote " " "${DESTDIR}")"
+        { find "${DESTDIR}${dir}" -name "${lib}" -type l
+          find "${DESTDIR}${dir}" -name "${lib}" -type f ; } | { while IFS="" read -r i ;  do
+                lib_dir="$(dirname "$i" | sed -e "s ^${dest_quoted}  " )"
+                ls "${lib_dir}"/${mod} | { while IFS="" read -r j ; do
+                        copy_exec "$j" | :
+                done ; }
+        done ; }
+}
+
 # walk /sys for relevant modules
 sys_walk_mod_add()
 {
