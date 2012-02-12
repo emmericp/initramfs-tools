@@ -1,3 +1,60 @@
+initramfs-tools (0.100) unstable; urgency=low
+
+  Release "singing in the snow ☃☃☃"
+
+  [ Michael Prokop ]
+  * [16280bb] lsinitramfs: support xz/lzma, bzip2 and lzop as compress
+    methods. (Closes: #586381)
+  * [ee16a4e] set_initlist: redirect warning messages to stderr.
+    (Closes: #601319)
+  * [af110e0] Alternate Recommends on busybox-static (Closes: #639902,
+    #454665)
+  * [b61413d] warn user if directory is present in confdir
+    (Closes: #610462)
+
+  [ maximilian attems ]
+  * [5409ca7] manual_add_modules: No longer add firmware.agent too.
+    (Closes: #566401)
+  * [4f98b0b] mkinitramfs: Use version comparison for xz or other
+    compression tools (Closes: #624702)
+  * [d479b47] initramfs-tools: rephrase description
+  * [07c822f] mkinitramfs: Check if TMPDIR is writable
+  * [b9ff58c] mkinitramfs: Use /var/tmp rather then /tmp for space reasons
+  * [bd3c5d8] Revert "Revert "mkinitramfs: Nuke MIN_VERSION handling.""
+  * [313db4c] MODULES=dep: Use /sys again to decide for libata or ide
+    (Closes: #607888)
+  * [9bec96f] debian/control: Drop versioned depend on pre-Etch udev
+    version
+  * [02ea666] debian/control: Tighten dep on klibc-utils 1.5.23-2
+  * [5c68e6e] init: Prepare for switch_root(8) usage
+  * [5e1f500] update-initramfs: Cleanup nowadays unused run_lilo()
+  * [b0d14a0] update-initramfs: run_bootloader() hooks on create too
+  * [8d0ffcb] preinst: get rid of awk usage (Closes: #589963)
+
+  [ Timo Juhani Lindfors ]
+  * [63932cc] panic(): print the name of each module before loading it
+  * [cd1981e] panic: Load modules for highly probable USB keyboard
+    (Closes: #615831)
+
+  [ Martin Pitt ]
+  * [b1530ee] hooks/busybox: Fix 2.99 busybox breakage (Closes: #628374)
+
+  [ Alkis Georgopoulos ]
+  * [b938c7e] configure_networking() wait for udev to populate available
+    nics (LP: #682445)
+
+  [ Harald Hoyer ]
+  * [9249db6] MODULES=dep: awk free version for root dev search
+
+  [ Sven Joachim ]
+  * [717397c] copy_exec: Handle optimized libraries under multiarch paths
+    (Closes: #636495)
+
+  [ Colin Watson ]
+  * [6cf2bd7] mark Multi-Arch: foreign (Closes: #649399)
+
+ -- Michael Prokop <mika@debian.org>  Tue, 14 Feb 2012 14:42:23 +0100
+
 initramfs-tools (0.99) unstable; urgency=low
 
   Release "scarpe rotte e pur bisogna andar"
