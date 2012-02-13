@@ -138,6 +138,7 @@ copy_exec() {
 		# We assume that all HWCAP libraries will be in tls,
 		# sse2, vfp or neon.
 		nonoptlib=$(echo "${x}" | sed -e 's#/lib/\([^/]*/\)\?\(tls\|i686\|sse2\|neon\|vfp\).*/\(lib.*\)#/lib/\1\3#')
+		nonoptlib=$(echo "${nonoptlib}" | sed -e 's#-linux-gnu/\(tls\|i686\|sse2\|neon\|vfp\).*/\(lib.*\)#-linux-gnu/\2#')
 
 		if [ -e "${nonoptlib}" ]; then
 			x="${nonoptlib}"
