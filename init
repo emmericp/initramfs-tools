@@ -310,14 +310,14 @@ unset readonly
 unset resume
 unset resume_offset
 
+# Move virtual filesystems over to the real filesystem
+mount -n -o move /sys ${rootmnt}/sys
+mount -n -o move /proc ${rootmnt}/proc
+
 # Chain to real filesystem
 if command -v switch_root >/dev/null 2>&1; then
 	exec switch_root ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
 elif command -v run-init >/dev/null 2>&1; then
-	# Move virtual filesystems over to the real filesystem
-	mount -n -o move /sys ${rootmnt}/sys
-	mount -n -o move /proc ${rootmnt}/proc
-
 	exec run-init ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
 fi
 echo "Something went badly wrong in the initramfs."
