@@ -128,7 +128,7 @@ copy_exec() {
 	cp -pL "${src}" "${DESTDIR}/${target}"
 
 	# Copy the dependant libraries
-	for x in $(ldd ${src} 2>/dev/null | sed -e '
+	for x in $(ldd "${src}" 2>/dev/null | sed -e '
 		/\//!d;
 		/linux-gate/d;
 		/=>/ {s/.*=>[[:blank:]]*\([^[:blank:]]*\).*/\1/};
