@@ -1,3 +1,25 @@
+initramfs-tools (0.101) unstable; urgency=low
+
+  Release "inbox zero ☕"
+
+  [ maximilian attems ]
+  * [9b2a4c4] hook-functions: ext4dev is gone
+  * [48c77ac] debian/control: Get rid of old findutils versioned depends
+  * [7cccc87] update-initramfs: Don't call flash-kernel directly
+
+  [ Ben Hutchings ]
+  * [71ece14] mkinitramfs: Copy modules.builtin into initramfs
+    (Closes: #659866)
+
+  [ Vadim Solomin ]
+  * [523ec93] initramfs-tools: Add per default missing hid-logitech-dj
+    (Closes: #658029)
+
+  [ Michael Prokop ]
+  * [18a5b5e] Bump Standards-Version to 3.9.3
+
+ -- Michael Prokop <mika@debian.org>  Tue, 06 Mar 2012 13:54:27 +0100
+
 initramfs-tools (0.100) unstable; urgency=low
 
   Release "singing in the snow ☃☃☃"
