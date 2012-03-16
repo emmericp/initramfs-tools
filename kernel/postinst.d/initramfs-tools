@@ -11,8 +11,8 @@ if [ -z "${version}" ]; then
 	exit 2
 fi
 
-# exit if custom kernel does not need an initramfs
-if [ -n "${KERNEL_PACKAGE_VERSION}" ] && [ "$INITRD" = 'No' ]; then
+# exit if kernel does not need an initramfs
+if [ "$INITRD" = 'No' ]; then
 	exit 0
 fi
 
