@@ -1,3 +1,11 @@
+initramfs-tools (0.102) unstable; urgency=low
+
+  * [da64d1a] Deal with the uniquely broken situation of armhf having
+    two linkers by creating both if we find either one in the target
+  * [2f988c4] Add myself to uploaders and release
+
+ -- Adam Conrad <adconrad@0c3.net>  Tue, 17 Apr 2012 17:43:08 -0600
+
 initramfs-tools (0.101) unstable; urgency=low
 
   Release "inbox zero ☕"
