@@ -1,3 +1,11 @@
+initramfs-tools (0.103) unstable; urgency=low
+
+  * [3fd3568] configure_networking: Use /run path for ipconfig generated
+    script.
+  * [886abf0] debian/control: Depend on newer klibc-utils for /run path.
+
+ -- maximilian attems <maks@debian.org>  Thu, 31 May 2012 15:57:37 +0200
+
 initramfs-tools (0.102) unstable; urgency=low
 
   * [da64d1a] Deal with the uniquely broken situation of armhf having
