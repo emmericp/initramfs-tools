@@ -221,7 +221,8 @@ dep_add_modules()
 
 	# findout root block device + fstype
 	eval "$( mount | while read dev foo mp foo fs opts rest ; do \
-        	[ "$mp" = "/" ] && printf "root=$dev\nFSTYPE=$fs" \
+        	[ "$mp" = "/" ] && [ "$fs" != "rootfs" ] \
+		&& printf "root=$dev\nFSTYPE=$fs" \
 		&& break; done)"
 
 	# On failure fallback to /proc/mounts if readable
