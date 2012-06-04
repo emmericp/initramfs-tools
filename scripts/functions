@@ -44,12 +44,12 @@ panic()
 		sleep ${panic}
 		reboot
 	fi
-	modprobe -v i8042
-	modprobe -v atkbd
-	modprobe -v ehci-hcd
-	modprobe -v uhci-hcd
-	modprobe -v ohci-hcd
-	modprobe -v usbhid
+	modprobe -v i8042 || true
+	modprobe -v atkbd || true
+	modprobe -v ehci-hcd || true
+	modprobe -v uhci-hcd || true
+	modprobe -v ohci-hcd || true
+	modprobe -v usbhid || true
 	REASON="$@" PS1='(initramfs) ' /bin/sh -i </dev/console >/dev/console 2>&1
 }
 
