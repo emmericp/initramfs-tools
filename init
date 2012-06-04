@@ -26,7 +26,7 @@ fi
 mkdir /dev/pts
 mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 mount -t tmpfs -o "nosuid,size=20%,mode=0755" tmpfs /run
-mkdir /run/initramfs
+mkdir -m 0755 /run/initramfs
 
 # Export the dpkg architecture
 export DPKG_ARCH=
