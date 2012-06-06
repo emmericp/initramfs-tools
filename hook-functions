@@ -43,10 +43,10 @@ add_modules_from_file()
 # Add dependent modules + eventual firmware
 manual_add_modules()
 {
-	local prefix kmod firmware
+	local prefix kmod options firmware
 
 	modprobe --all --set-version="${version}" --ignore-install --quiet --show-depends "$@" |
-	while read prefix kmod ; do
+	while read prefix kmod options ; do
 		if [ "${prefix}" != "insmod" ]; then
 			continue
 		fi
