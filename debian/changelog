@@ -1,3 +1,18 @@
+initramfs-tools (0.105) unstable; urgency=high
+
+  [ Thomas Lange ]
+  * [c52544d] initramfs-tools: kernel script check for update-initramfs
+    executuable.  (Closes: #669345)
+
+  [ maximilian attems ]
+  * [44b93e0] initramfs-tools: guard too kernel postrm script.
+
+  [ Josh Triplett ]
+  * [95d8e7a] initramfs-tools: fix update-initramfs with modprobe options.
+    (Closes: #676400)
+
+ -- maximilian attems <maks@debian.org>  Wed, 06 Jun 2012 22:38:38 +0200
+
 initramfs-tools (0.104) unstable; urgency=high
 
   [ Michael Prokop ]
