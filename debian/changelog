@@ -1,3 +1,31 @@
+initramfs-tools (0.104) unstable; urgency=high
+
+  [ Michael Prokop ]
+  * [9e961c6] docs: clarify that PREREQ is only honored inside single directory.
+    Thanks to Marc Haber <mh+debian-bugs@zugschlus.de> for spotting thjs issue
+    (Closes: #601324)
+
+  [ maximilian attems ]
+  * [b60b440] debian/control: Depend on kmod or m-i-t.
+  * [f87e71b] hook-functions: handle rootfs output from mount(8).
+    (Closes: #668616)
+  * [042c5c9] init: tighten /run/initramfs permissions. (Closes: #655175)
+  * [df4ffdf] scripts/functions: panic() don't abort on modprobe failures.
+    (Closes: #674484)
+
+  [ Vagrant Cascadian ]
+  * [ddbdb4f] init: busybox's switch_root doesn't handle /proc or /sys moving.
+    (Closes: #660297)
+
+  [ Balwinder S Dheeman ]
+  * [3ff8ee6] init: fixes ignored $tmpfs_size. (Closes: #670496)
+
+  [ Josh Triplett ]
+  * [2c5c942] initramfs-tools: speed-up by avoiding forks in the per-module
+    hot path. (Closes: #652525)
+
+ -- maximilian attems <maks@debian.org>  Wed, 06 Jun 2012 14:48:26 +0200
+
 initramfs-tools (0.103) unstable; urgency=low
 
   * [3fd3568] configure_networking: Use /run path for ipconfig generated
