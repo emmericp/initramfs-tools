@@ -45,6 +45,10 @@ manual_add_modules()
 {
 	local prefix kmod options firmware
 
+	if [ $# -eq 0 ]; then
+		return
+	fi
+
 	modprobe --all --set-version="${version}" --ignore-install --quiet --show-depends "$@" |
 	while read prefix kmod options ; do
 		if [ "${prefix}" != "insmod" ]; then
