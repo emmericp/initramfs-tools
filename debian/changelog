@@ -1,3 +1,11 @@
+initramfs-tools (0.106) unstable; urgency=high
+
+  [ Josh Triplett ]
+  * [67d4cec] initramfs-tools: Make manual_add_modules a no-op with no
+    arguments (Closes: 676439)
+
+ -- Michael Prokop <mika@debian.org>  Thu, 07 Jun 2012 14:40:24 +0200
+
 initramfs-tools (0.105) unstable; urgency=high
 
   [ Thomas Lange ]
