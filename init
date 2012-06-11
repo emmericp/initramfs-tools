@@ -186,6 +186,11 @@ for x in $(cat /proc/cmdline); do
 	esac
 done
 
+# Default to BOOT=local if no boot script defined.
+if [ -z "${BOOT}" ]; then
+	BOOT=local
+fi
+
 if [ -n "${noresume}" ]; then
 	export noresume
 	unset resume
