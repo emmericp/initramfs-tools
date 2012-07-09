@@ -1,3 +1,23 @@
+initramfs-tools (0.107) unstable; urgency=low
+
+  [ Michal Suchanek ]
+  * initramfs-tools: copy_exec quote ${src}
+  * initramfs-tools: copy_exec add pattern for nonoptimized multiarch
+    libraries (Closes: #659752)
+
+  [ Vagrant Cascadian ]
+  * initramfs-tools Don't override root=/dev/nfs by BOOT=local config
+    (Closes: #677157)
+
+  [ Adam Conrad ]
+  * hooks/klibc: Make us play more nicely with busybox and static bin/sh
+    (Closes: #638068)
+  * Kernel versions aren't (necessarily) package versions, so redirect
+    the whining from dpkg --compare-versions to /dev/null to avoid scary
+    (and incorrect) warnings. (LP: #889584)
+
+ -- Adam Conrad <adconrad@0c3.net>  Mon, 09 Jul 2012 11:07:21 -0600
+
 initramfs-tools (0.106) unstable; urgency=high
 
   [ Josh Triplett ]
