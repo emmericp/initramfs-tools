@@ -424,8 +424,8 @@ auto_add_modules()
 		base)
 			modules="$modules ehci-hcd ohci-hcd uhci-hcd usbhid"
 			modules="$modules xhci xhci-hcd"
-			modules="$modules hid-apple hid-cherry hid-logitech"
-			modules="$modules hid-logitech-dj"
+			modules="$modules hid-apple hid-cherry hid-generic"
+			modules="$modules hid-logitech hid-logitech-dj"
 			modules="$modules hid-microsoft hid-sunplus"
 			modules="$modules btrfs ext2 ext3 ext4 ext4dev "
 			modules="$modules isofs jfs nfs reiserfs udf xfs"
