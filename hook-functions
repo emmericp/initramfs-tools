@@ -448,8 +448,11 @@ auto_add_modules()
 		;;
 		net)
 			copy_modules_dir kernel/drivers/net \
-				appletalk arcnet bonding can hamradio irda \
-				pcmcia tokenring usb wan wimax wireless
+				appletalk arcnet bonding can dummy.ko \
+				hamradio hippi ifb.ko irda macvlan.ko \
+				macvtap.ko pcmcia sb1000.ko team tokenring \
+				tun.ko usb veth.ko wan wimax wireless \
+				xen-netback.ko
 		;;
 		ide)
 			copy_modules_dir kernel/drivers/ide
