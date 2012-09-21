@@ -1,3 +1,21 @@
+initramfs-tools (0.108) unstable; urgency=low
+
+  [ maximilian attems ]
+  * [a8420de] hook-functions: add hid-generic module (Closes: #682340)
+  * [9723143] debian/control: Scratch 2.6 mention
+
+  [ Petr Baudis ]
+  * [1d6b272] initramfs-tools: allow disabling initrd for make deb-pkg
+    (Closes: #664171)
+
+  [ Michael Prokop ]
+  * [0ffc800] Use setupcon to install system's keymap. Thanks to
+    Andreas Altergott <andreasaltergott@googlemail.com> for the initial
+    patch. Thanks to Raphaël Hertzog <hertzog@debian.org> for testing,
+    feedback and review. (Closes: #619711)
+
+ -- Michael Prokop <mika@debian.org>  Fri, 21 Sep 2012 12:10:28 +0200
+
 initramfs-tools (0.107) unstable; urgency=low
 
   [ Michal Suchanek ]
