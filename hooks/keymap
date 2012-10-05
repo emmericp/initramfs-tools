@@ -21,7 +21,13 @@ if [ "$KEYMAP" != "y" ] && [ "$KEYMAP" != "Y" ]; then
 fi
 
 # Step 1 - Basic tools
-if [ ! -x /bin/loadkeys ] || [ ! -x /bin/setupcon ]; then
+if [ ! -x /bin/loadkeys ]; then
+	echo "loadkeys is missing. Please install the 'kbd' package."
+	exit 0
+fi
+
+if [ ! -x /bin/setupcon ]; then
+	echo "setupcon is missing. Please install the 'console-setup' package."
 	exit 0
 fi
 
