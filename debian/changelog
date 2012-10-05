@@ -1,3 +1,11 @@
+initramfs-tools (0.109) unstable; urgency=low
+
+  * keymap hook: provide warning message if loadkeys/setupcon are not
+    available. Thanks to Raphael Hertzog <hertzog@debian.org> for the
+    feedback (Closes: #689336)
+
+ -- Michael Prokop <mika@debian.org>  Sat, 06 Oct 2012 00:43:00 +0200
+
 initramfs-tools (0.108) unstable; urgency=low
 
   [ maximilian attems ]
