@@ -422,7 +422,7 @@ auto_add_modules()
 	for arg in "$@" ; do
 		case "$arg" in
 		base)
-			modules="$modules ehci-hcd ohci-hcd uhci-hcd usbhid"
+			modules="$modules ehci-pci ehci-hcd ohci-hcd uhci-hcd usbhid"
 			modules="$modules xhci xhci-hcd"
 			modules="$modules hid-apple hid-cherry hid-generic"
 			modules="$modules hid-logitech hid-logitech-dj"
