@@ -1,3 +1,20 @@
+initramfs-tools (0.110) experimental; urgency=low
+
+  [ Michael Prokop ]
+  * [3b2cca3] Install nfsv{2,3,4} kernel modules as used by Kernels >=3.6.
+    Thanks to Julien Cristau <jcristau@debian.org> for the hint regarding
+    the split
+  * [38d3060] include ehci-pci in auto_add_modules list. Thanks to Bjørn
+    Mork <bjorn@mork.no> for bug report + patch (Closes: #700572)
+
+  [ Ben Hutchings ]
+  * [70a3225] Remove '2.6.' from initramfs wildcard in bug script
+    (Closes: #697319)
+  * [5c78aa9] Remove more references to linux-2.6 in manual page and
+    comments
+
+ -- Michael Prokop <mika@debian.org>  Fri, 01 Mar 2013 11:47:21 +0100
+
 initramfs-tools (0.109) unstable; urgency=low
 
   * keymap hook: provide warning message if loadkeys/setupcon are not
