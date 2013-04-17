@@ -1,3 +1,11 @@
+initramfs-tools (0.109.1) unstable; urgency=low
+
+  * Team upload
+  * [1314bff] hook-functions: Include more HID drivers in base
+    (Closes: #697619)
+
+ -- Ben Hutchings <ben@decadent.org.uk>  Wed, 17 Apr 2013 02:20:49 +0100
+
 initramfs-tools (0.109) unstable; urgency=low
 
   * keymap hook: provide warning message if loadkeys/setupcon are not
