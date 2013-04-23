@@ -1,3 +1,12 @@
+initramfs-tools (0.111) experimental; urgency=low
+
+  [ Ben Hutchings ]
+  * [450783a] hook-functions: Include more HID drivers in base
+    (Closes: #697619)
+  * [849dab7] hook-functions: Exclude more unnecessary net drivers
+
+ -- Michael Prokop <mika@debian.org>  Tue, 23 Apr 2013 22:38:48 +0200
+
 initramfs-tools (0.110) experimental; urgency=low
 
   [ Michael Prokop ]
