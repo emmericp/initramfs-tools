@@ -494,3 +494,19 @@ resolve_device() {
 	esac
 	echo "$DEV"
 }
+
+# Mount a file system.  We parse the information from the fstab.  This
+# should be overridden by any boot script which can mount arbitrary
+# filesystems such as /usr.  This default implementation delegates to
+# local or nfs based upon the filesystem type.
+# $1=mountpoint mount location
+mountfs()
+{
+	type=local
+	read_fstab_entry "$1"
+	if [ "${MNT_TYPE}" = "nfs" ] || [ "${MNT_TYPE}" = "nfs4" ]; then
+		type=nfs
+	fi
+
+	${type}_mount_fs "$1"
+}
