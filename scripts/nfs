@@ -103,3 +103,42 @@ mountroot()
 
 	nfs_bottom
 }
+
+nfs_mount_fs_impl()
+{
+	configure_networking
+
+	if [ -z "${NFSOPTS}" ]; then
+		NFSOPTS="-o retrans=10"
+	fi
+
+	nfs_premount
+
+	if [ ${readonly} = y ]; then
+		roflag="-o ro"
+	else
+		roflag="-o rw"
+	fi
+
+	read_fstab_entry "$1"
+
+	nfsmount ${roflag} ${NFSOPTS} -o "${MNT_OPTS}" "$MNT_FSNAME" "${rootmnt}${MNT_DIR}"
+}
+
+nfs_mount_fs()
+{
+	nfs_top
+
+	modprobe nfs
+	# For DHCP
+	modprobe af_packet
+
+	wait_for_udev 10
+
+	# Default delay is around 180s
+	delay=${ROOTDELAY:-180}
+
+	# Don't loop here; we can't sanely check if it worked like for
+	# the rootfs or /etc.
+	nfs_mount_fs_impl "$1"
+}

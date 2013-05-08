@@ -137,3 +137,26 @@ mountroot()
 	run_scripts /scripts/local-bottom
 	[ "$quiet" != "y" ] && log_end_msg
 }
+
+local_mount_fs()
+{
+	read_fstab_entry "$1"
+	MNT_FSNAME=$(resolve_device "$MNT_FSNAME")
+
+	local_device_setup "$MNT_FSNAME" "$1"
+
+	local_premount
+
+	if [ "${readonly}" = "y" ]; then
+		roflag=-r
+	else
+		roflag=-w
+	fi
+
+	# FIXME This has no error checking
+	modprobe "${MNT_TYPE}"
+
+	# FIXME This has no error checking
+	# Mount filesystem
+	mount ${roflag} -t "${MNT_TYPE}" -o "${MNT_OPTS}" "$MNT_FSNAME" "${rootmnt}${MNT_DIR}"
+}
