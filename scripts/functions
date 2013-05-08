@@ -424,3 +424,33 @@ wait_for_udev()
 	command -v udevadm >/dev/null 2>&1 || return 0
 	udevadm settle ${1:+--timeout=$1}
 }
+
+# Find a specific fstab entry
+# $1=mountpoint
+# $2=fstype (optional)
+# returns 0 on success, 1 on failure (not found or no fstab)
+read_fstab_entry() {
+	# Not found by default.
+	found=1
+
+	for file in ${rootmnt}/etc/fstab; do
+		if [ -f "$file" ]; then
+			while read MNT_FSNAME MNT_DIR MNT_TYPE MNT_OPTS MNT_FREQ MNT_PASS MNT_JUNK; do
+				case "$MNT_FSNAME" in
+				  ""|\#*)
+					continue;
+					;;
+				esac
+				if [ "$MNT_DIR" = "$1" ]; then
+					if [ -n "$2" ]; then
+						[ "$MNT_TYPE" = "$2" ] || continue;
+					fi
+					found=0
+					break 2
+				fi
+			done < "$file"
+		fi
+	done
+
+	return $found
+}
