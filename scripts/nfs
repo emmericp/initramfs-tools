@@ -34,9 +34,8 @@ nfs_bottom()
 }
 
 # parse nfs bootargs and mount nfs
-do_nfsmount()
+nfs_mount_root_impl()
 {
-
 	configure_networking
 
 	# get nfs root from dhcp
@@ -90,13 +89,13 @@ nfs_mount_root()
 	delay=${ROOTDELAY:-180}
 
 	# loop until nfsmount succeeds
-	do_nfsmount
+	nfs_mount_root_impl
 	nfs_retry_count=0
 	while [ ${nfs_retry_count} -lt ${delay} ] \
 		&& ! chroot "${rootmnt}" test -x "${init}" ; do
 		[ "$quiet" != "y" ] && log_begin_msg "Retrying nfs mount"
 		/bin/sleep 1
-		do_nfsmount
+		nfs_mount_root_impl
 		nfs_retry_count=$(( ${nfs_retry_count} + 1 ))
 		[ "$quiet" != "y" ] && log_end_msg
 	done
