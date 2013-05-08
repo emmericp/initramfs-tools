@@ -457,3 +457,43 @@ read_fstab_entry() {
 
 	return $found
 }
+
+# Resolve device node from a name.  This expands any LABEL or UUID.
+# $1=name
+# Resolved name is echoed.
+resolve_device() {
+	DEV="$1"
+
+	case $DEV in
+	LABEL=*)
+		DEV="${DEV#LABEL=}"
+
+		# support any / in LABEL= path (escape to \x2f)
+		case "${DEV}" in
+		*/*)
+		if command -v sed >/dev/null 2>&1; then
+			DEV="$(echo ${DEV} | sed 's,/,\\x2f,g')"
+		else
+			if [ "${DEV}" != "${DEV#/}" ]; then
+				DEV="\x2f${DEV#/}"
+			fi
+			if [ "${DEV}" != "${DEV%/}" ]; then
+				DEV="${DEV%/}\x2f"
+			fi
+			IFS='/'
+			newroot=
+			for s in $DEV; do
+				newroot="${newroot:+${newroot}\\x2f}${s}"
+			done
+			unset IFS
+			DEV="${newroot}"
+		fi
+		esac
+		DEV="/dev/disk/by-label/${DEV}"
+		;;
+	UUID=*)
+		DEV="/dev/disk/by-uuid/${DEV#UUID=}"
+		;;
+	esac
+	echo "$DEV"
+}
