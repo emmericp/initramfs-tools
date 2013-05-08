@@ -1,11 +1,38 @@
 # Local filesystem mounting			-*- shell-script -*-
 
+local_top()
+{
+	if [ "${local_top_used}" != "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-top"
+		run_scripts /scripts/local-top
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	local_top_used=yes
+}
+
+local_premount()
+{
+	if [ "${local_premount_used}" != "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-premount"
+		run_scripts /scripts/local-premount
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	local_premount_used=yes
+}
+
+local_bottom()
+{
+	if [ "${local_premount_used}" = "yes" ] || [ "${local_top_used}" = "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-bottom"
+		run_scripts /scripts/local-bottom
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	local_premount_used=no
+	local_top_used=no
+}
+
 pre_mountroot()
 {
-	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-top"
-	run_scripts /scripts/local-top
-	[ "$quiet" != "y" ] && log_end_msg
-
 	wait_for_udev 10
 
 	# Load ubi with the correct MTD partition and return since fstype
@@ -76,6 +103,8 @@ pre_mountroot()
 
 mountroot()
 {
+	local_top
+
 	pre_mountroot
 
 	# Get the root filesystem type if not set
@@ -85,9 +114,7 @@ mountroot()
 		FSTYPE=${ROOTFSTYPE}
 	fi
 
-	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-premount"
-	run_scripts /scripts/local-premount
-	[ "$quiet" != "y" ] && log_end_msg
+        local_premount
 
 	if [ "${readonly}" = "y" ]; then
 		roflag=-r
