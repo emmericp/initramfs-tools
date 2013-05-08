@@ -513,3 +513,31 @@ mountfs()
 
 	${type}_mount_fs "$1"
 }
+
+# Mount the root file system.  It should be overridden by all
+# boot scripts.
+mountroot()
+{
+	:
+}
+
+# Run /scripts/${boot}-top.  This should be overridden by all boot
+# scripts.
+mount_top()
+{
+	:
+}
+
+# Run /scripts/${boot}-premount.  This should be overridden by all boot
+# scripts.
+mount_premount()
+{
+	:
+}
+
+# Run /scripts/${boot}-bottom.  This should be overridden by all boot
+# scripts.
+mount_bottom()
+{
+	:
+}
