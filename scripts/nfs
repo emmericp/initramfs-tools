@@ -2,8 +2,6 @@
 
 # FIXME This needs error checking
 
-retry_nr=0
-
 nfs_top()
 {
 	if [ "${nfs_top_used}" != "yes" ]; then
@@ -93,11 +91,12 @@ mountroot()
 
 	# loop until nfsmount succeeds
 	do_nfsmount
-	while [ ${retry_nr} -lt ${delay} ] && [ ! -e ${rootmnt}${init} ]; do
+	nfs_retry_count=0
+	while [ ${nfs_retry_count} -lt ${delay} ] && [ ! -e ${rootmnt}${init} ]; do
 		[ "$quiet" != "y" ] && log_begin_msg "Retrying nfs mount"
 		/bin/sleep 1
 		do_nfsmount
-		retry_nr=$(( ${retry_nr} + 1 ))
+		nfs_retry_count=$(( ${nfs_retry_count} + 1 ))
 		[ "$quiet" != "y" ] && log_end_msg
 	done
 
