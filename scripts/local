@@ -138,6 +138,37 @@ local_mount_root()
 	fi
 }
 
+local_mount_etc()
+{
+	local_device_setup "${ETC}" etc
+
+	# Get the etc filesystem type if not set
+	if [ -z "${ETCFSTYPE}" ]; then
+		FSTYPE=$(get_fstype "${ETC}")
+	else
+		FSTYPE=${ETCFSTYPE}
+	fi
+
+	local_premount
+
+	if [ "${readonly}" = "y" ]; then
+		roflag=-r
+	else
+		roflag=-w
+	fi
+
+	# FIXME This has no error checking
+	modprobe ${FSTYPE}
+
+	# FIXME This has no error checking
+	# Mount etc
+	if [ "${FSTYPE}" != "unknown" ]; then
+		mount ${roflag} -t ${FSTYPE} ${ETCFLAGS} ${ETC} ${rootmnt}/etc
+	else
+		mount ${roflag} ${ETCFLAGS} ${ETC} ${rootmnt}/etc
+	fi
+}
+
 local_mount_fs()
 {
 	read_fstab_entry "$1"

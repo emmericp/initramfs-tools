@@ -100,6 +100,63 @@ nfs_mount_root()
 	done
 }
 
+# parse nfs bootargs and mount nfs
+nfs_mount_etc_impl()
+{
+	configure_networking
+
+	if [ -n "${NFSETC}" ]; then
+		# nfs options are an optional arg
+		if [ "${NFSETC#*,}" != "${NFSETC}" ]; then
+			NFSOPTS="-o ${NFSETC#*,}"
+		fi
+		NFSETC=${NFSETC%%,*}
+		if [ "${NFSETC#*:}" = "$NFSETC" ]; then
+			NFSETC=${ETCSERVER}:${NFSETC}
+		fi
+	fi
+
+	if [ -z "${NFSOPTS}" ]; then
+		NFSOPTS="-o retrans=10"
+	fi
+
+	nfs_premount
+
+	if [ ${readonly} = y ]; then
+		roflag="-o ro"
+	else
+		roflag="-o rw"
+	fi
+
+	nfsmount -o nolock ${roflag} ${NFSOPTS} ${NFSETC} ${rootmnt}/etc
+}
+
+# NFS etc mounting
+nfs_mount_etc()
+{
+	nfs_top
+
+	modprobe nfs
+	# For DHCP
+	modprobe af_packet
+
+	wait_for_udev 10
+
+	# Default delay is around 180s
+	delay=${ETCDELAY:-180}
+
+	# loop until nfsmount succeeds
+	nfs_mount_etc_impl
+	retry_nr=0
+	while [ ${retry_nr} -lt ${delay} ] && [ ! -e ${rootmnt}/etc/fstab ]; do
+		[ "$quiet" != "y" ] && log_begin_msg "Retrying nfs mount"
+		/bin/sleep 1
+		nfs_mount_etc_impl
+		retry_nr=$(( ${retry_nr} + 1 ))
+		[ "$quiet" != "y" ] && log_end_msg
+	done
+}
+
 nfs_mount_fs_impl()
 {
 	configure_networking

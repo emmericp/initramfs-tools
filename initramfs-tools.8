@@ -42,6 +42,24 @@ The default is 180 seconds.
 set the file system mount option string.
 
 .TP
+\fB\fI etc= "<path to blockdevice>"
+the device node to mount as the etc file system.
+The recommended usage is to specify the UUID as followed "etc=UUID=xxx".
+
+.TP
+\fB\fI etcfstype
+set the etc file system type.
+
+.TP
+\fB\fI etcdelay
+set delay in seconds. Determines how long mountetc waits for etc to appear.
+The default is 180 seconds.
+
+.TP
+\fB\fI etcflags
+set the file system mount option string.
+
+.TP
 \fB\fI nfsroot
 can be either "auto" to try to get the relevant information from DHCP or a
 string of the form NFSSERVER:NFSPATH or NFSSERVER:NFSPATH:NFSOPTS.

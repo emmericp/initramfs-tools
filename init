@@ -40,6 +40,10 @@ export ROOT=
 export ROOTDELAY=
 export ROOTFLAGS=
 export ROOTFSTYPE=
+export ETC=
+export ETCDELAY=
+export ETCFLAGS=
+export ETCFSTYPE=
 export IP=
 export BOOT=
 export BOOTIF=
@@ -89,8 +93,29 @@ for x in $(cat /proc/cmdline); do
 			;;
 		esac
 		;;
+	etc=*)
+		ETC=${x#etc=}
+		ETC=$(resolve_device "$ETC")
+                ;;
+	etcflags=*)
+		ETCFLAGS="-o ${x#etcflags=}"
+		;;
+	etcfstype=*)
+		ETCFSTYPE="${x#etcfstype=}"
+		;;
+	etcdelay=*)
+		ETCDELAY="${x#etcdelay=}"
+		case ${ETCDELAY} in
+		*[![:digit:].]*)
+			ETCDELAY=
+			;;
+		esac
+		;;
 	nfsroot=*)
 		NFSROOT="${x#nfsroot=}"
+		;;
+	nfsetc=*)
+		NFSETC="${x#nfsetc=}"
 		;;
 	ip=*)
 		IP="${x#ip=}"
@@ -199,6 +224,12 @@ mount_premount
 mountroot
 log_end_msg
 
+if [ -n "${ETC}" ]; then
+	log_begin_msg "Mounting /etc file system"
+	mountetc
+	log_end_msg
+fi
+
 if read_fstab_entry /usr; then
 	log_begin_msg "Mounting /usr file system"
 	mountfs /usr
@@ -289,6 +320,10 @@ unset ROOTFLAGS
 unset ROOTFSTYPE
 unset ROOTDELAY
 unset ROOT
+unset ETCFLAGS
+unset ETCFSTYPE
+unset ETCDELAY
+unset ETC
 unset IP
 unset BOOT
 unset BOOTIF

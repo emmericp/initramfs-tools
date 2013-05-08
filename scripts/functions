@@ -518,6 +518,19 @@ mountroot()
 	:
 }
 
+# Mount the etc file system.    It should be overridden by any
+# boot script which can mount /etc.
+# Mount the etc file system.
+mountetc()
+{
+	type=local
+	if [ "$ETC" = "/dev/nfs" ]; then
+		type=nfs
+	fi
+
+	${type}_mount_etc
+}
+
 # Run /scripts/${boot}-top.  This should be overridden by all boot
 # scripts.
 mount_top()
