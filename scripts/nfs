@@ -76,7 +76,7 @@ do_nfsmount()
 }
 
 # NFS root mounting
-mountroot()
+nfs_mount_root()
 {
 	nfs_top
 
@@ -140,4 +140,27 @@ nfs_mount_fs()
 	# Don't loop here; we can't sanely check if it worked like for
 	# the rootfs or /etc.
 	nfs_mount_fs_impl "$1"
+}
+
+mountroot()
+{
+	nfs_mount_root
+}
+
+mount_top()
+{
+	# Note, also called directly in case it's overridden.
+	nfs_top
+}
+
+mount_premount()
+{
+	# Note, also called directly in case it's overridden.
+	nfs_premount
+}
+
+mount_bottom()
+{
+	# Note, also called directly in case it's overridden.
+	nfs_bottom
 }

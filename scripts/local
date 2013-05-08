@@ -101,7 +101,7 @@ pre_mountroot()
 	done
 }
 
-mountroot()
+local_mount_root()
 {
 	local_top
 
@@ -159,4 +159,27 @@ local_mount_fs()
 	# FIXME This has no error checking
 	# Mount filesystem
 	mount ${roflag} -t "${MNT_TYPE}" -o "${MNT_OPTS}" "$MNT_FSNAME" "${rootmnt}${MNT_DIR}"
+}
+
+mountroot()
+{
+	local_mount_root
+}
+
+mount_top()
+{
+	# Note, also called directly in case it's overridden.
+	local_top
+}
+
+mount_premount()
+{
+	# Note, also called directly in case it's overridden.
+	local_premount
+}
+
+mount_bottom()
+{
+	# Note, also called directly in case it's overridden.
+	local_bottom
 }
