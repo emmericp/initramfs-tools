@@ -4,6 +4,37 @@
 
 retry_nr=0
 
+nfs_top()
+{
+	if [ "${nfs_top_used}" != "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/nfs-top"
+		run_scripts /scripts/nfs-top
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	nfs_top_used=yes
+}
+
+nfs_premount()
+{
+	if [ "${nfs_premount_used}" != "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/nfs-premount"
+		run_scripts /scripts/nfs-premount
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	nfs_premount_used=yes
+}
+
+nfs_bottom()
+{
+	if [ "${nfs_premount_used}" = "yes" ] || [ "${nfs_top_used}" = "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/nfs-bottom"
+		run_scripts /scripts/nfs-bottom
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	nfs_premount_used=no
+	nfs_top_used=no
+}
+
 # parse nfs bootargs and mount nfs
 do_nfsmount()
 {
@@ -35,9 +66,7 @@ do_nfsmount()
 		NFSOPTS="-o retrans=10"
 	fi
 
-	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/nfs-premount"
-	run_scripts /scripts/nfs-premount
-	[ "$quiet" != "y" ] && log_end_msg
+	nfs_premount
 
 	if [ ${readonly} = y ]; then
 		roflag="-o ro"
@@ -51,9 +80,7 @@ do_nfsmount()
 # NFS root mounting
 mountroot()
 {
-	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/nfs-top"
-	run_scripts /scripts/nfs-top
-	[ "$quiet" != "y" ] && log_end_msg
+	nfs_top
 
 	modprobe nfs
 	# For DHCP
@@ -75,7 +102,5 @@ mountroot()
 		[ "$quiet" != "y" ] && log_end_msg
 	done
 
-	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/nfs-bottom"
-	run_scripts /scripts/nfs-bottom
-	[ "$quiet" != "y" ] && log_end_msg
+	nfs_bottom
 }
