@@ -100,8 +100,6 @@ nfs_mount_root()
 		nfs_retry_count=$(( ${nfs_retry_count} + 1 ))
 		[ "$quiet" != "y" ] && log_end_msg
 	done
-
-	nfs_bottom
 }
 
 nfs_mount_fs_impl()

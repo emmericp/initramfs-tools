@@ -195,11 +195,28 @@ run_scripts /scripts/init-premount
 
 maybe_break mount
 log_begin_msg "Mounting root file system"
+# Always load local and nfs (since these might be needed for /etc or
+# /usr, irrespective of the boot script used to mount the rootfs).
+. /scripts/local
+. /scripts/nfs
 . /scripts/${BOOT}
 parse_numeric ${ROOT}
 maybe_break mountroot
+mount_top
+mount_premount
 mountroot
 log_end_msg
+
+if read_fstab_entry /usr; then
+	log_begin_msg "Mounting /usr file system"
+	mountfs /usr
+	log_end_msg
+fi
+
+# Mount cleanup
+mount_bottom
+nfs_bottom
+local_bottom
 
 maybe_break bottom
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-bottom"
