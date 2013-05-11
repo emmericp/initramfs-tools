@@ -120,6 +120,8 @@ local_mount_root()
 
 	local_premount
 
+	ROOT=$(resolve_device "$ROOT")
+
 	if [ "${readonly}" = "y" ]; then
 		roflag=-r
 	else
@@ -151,6 +153,8 @@ local_mount_etc()
 
 	local_premount
 
+	ETC=$(resolve_device "$ETC")
+
 	if [ "${readonly}" = "y" ]; then
 		roflag=-r
 	else
@@ -177,6 +181,8 @@ local_mount_fs()
 	local_device_setup "$MNT_FSNAME" "$1"
 
 	local_premount
+
+	MNT_FSNAME=$(resolve_device "$MNT_FSNAME")
 
 	if [ "${readonly}" = "y" ]; then
 		roflag=-r

@@ -492,6 +492,8 @@ resolve_device() {
 		DEV="/dev/disk/by-uuid/${DEV#UUID=}"
 		;;
 	esac
+	# Only canonicalise if a valid file, in case $DEV isn't a filename
+	[ -e "$DEV" ] && DEV=$(readlink -f "$DEV")
 	echo "$DEV"
 }
 
