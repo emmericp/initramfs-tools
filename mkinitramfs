@@ -278,6 +278,10 @@ if ! command -v ldd >/dev/null 2>&1 ; then
 	exit 1
 fi
 
+# fstab and mtab
+touch "${DESTDIR}/etc/fstab"
+ln -s /proc/mounts "${DESTDIR}/etc/mtab"
+
 # module-init-tools
 copy_exec /sbin/modprobe /sbin
 copy_exec /sbin/rmmod /sbin
