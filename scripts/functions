@@ -571,12 +571,7 @@ A maintenance shell will now be started.
 After performing system maintenance, press CONTROL-D
 to terminate the maintenance shell and restart the system."
 		# Start a single user shell on the console
-		if ! sulogin $CONSOLE
-		then
-			log_failure_msg "Attempt to start maintenance shell failed.
-Will restart in 5 seconds."
-			sleep 5
-		fi
+		panic "fsck of $NAME failed"
 		if [ "${verbose}" = "y" ] ; then
 			log_begin_msg "Will now restart"
 		fi
