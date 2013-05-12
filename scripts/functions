@@ -500,6 +500,103 @@ resolve_device() {
 	echo "$DEV"
 }
 
+# Check a file system.
+# $1=device
+# $2=mountpoint (for diagnostics only)
+checkfs()
+{
+	DEV="$1"
+	NAME="$2"
+	if [ "$NAME" = "/" ] ; then
+		NAME="root"
+	fi
+	FSCK_LOGFILE=/run/initramfs/fsck
+
+	TYPE=$(get_fstype "$1")
+
+	FSCKCODE=0
+	if [ "$fastboot" = "y" ] ; then
+		log_warning_msg "Fast boot enabled, so skipping $NAME file system check."
+		return
+	fi
+
+	if [ "$forcefsck" = "y" ]
+	then
+		force="-f"
+	else
+		force=""
+	fi
+
+	if [ "$fsckfix" = yes ]
+	then
+		fix="-y"
+	else
+		fix="-a"
+	fi
+
+	# spinner="-C" -- only if on an interactive terminal
+	spinner=""
+
+	if [ "$VERBOSE" = no ]
+	then
+		log_begin_msg "Will now check $NAME file system"
+		logsave -a -s $FSCK_LOGFILE fsck $spinner $force $fix -V -t $TYPE $DEV
+		FSCKCODE=$?
+		log_end_msg
+	else
+		log_begin_msg "Checking $NAME file system"
+		logsave -a -s $FSCK_LOGFILE fsck $spinner $force $fix -t $TYPE $DEV
+		FSCKCODE=$?
+		log_end_msg
+	fi
+
+	#
+	# If there was a failure, drop into a shell.
+	#
+	# NOTE: "failure" is defined as exiting with a return code of
+	# 4 or larger. A return code of 1 indicates that file system
+	# errors were corrected but that the boot may proceed. A return
+	# code of 2 or 3 indicates that the system should immediately reboot.
+	#
+	if [ "$FSCKCODE" -eq 32 ]
+	then
+		log_warning_msg "File system check was interrupted by user"
+	elif [ "$FSCKCODE" -gt 3 ]
+	then
+		# Surprise! Re-directing from a HERE document (as in "cat << EOF")
+		# does not work because the fs is currently read-only.
+		log_failure_msg "An automatic file system check (fsck) of the $NAME filesystem failed.
+A manual fsck must be performed, then the system restarted.
+The fsck should be performed in maintenance mode with the
+$NAME filesystem mounted in read-only mode."
+		log_warning_msg "The $NAME filesystem is currently mounted in read-only mode.
+A maintenance shell will now be started.
+After performing system maintenance, press CONTROL-D
+to terminate the maintenance shell and restart the system."
+		# Start a single user shell on the console
+		if ! sulogin $CONSOLE
+		then
+			log_failure_msg "Attempt to start maintenance shell failed.
+Will restart in 5 seconds."
+			sleep 5
+		fi
+		if [ "${verbose}" = "y" ] ; then
+			log_begin_msg "Will now restart"
+		fi
+		reboot
+	elif [ "$FSCKCODE" -gt 1 ]
+	then
+		log_failure_msg "The file system check corrected errors on the $NAME partition
+but requested that the system be restarted."
+		log_warning_msg "The system will be restarted in 5 seconds."
+		sleep 5
+		if [ "${verbose}" = "y" ] ; then
+			log_begin_msg "Will now restart"
+		fi
+		reboot
+	fi
+}
+
 # Mount a file system.  We parse the information from the fstab.  This
 # should be overridden by any boot script which can mount arbitrary
 # filesystems such as /usr.  This default implementation delegates to

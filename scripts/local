@@ -131,6 +131,8 @@ local_mount_root()
 	# FIXME This has no error checking
 	modprobe ${FSTYPE}
 
+	checkfs ${ROOT} root
+
 	# FIXME This has no error checking
 	# Mount root
 	if [ "${FSTYPE}" != "unknown" ]; then
@@ -159,6 +161,8 @@ local_mount_fs()
 
 	# FIXME This has no error checking
 	modprobe "${MNT_TYPE}"
+
+	checkfs "$MNT_FSNAME" "$MNT_DIR"
 
 	# FIXME This has no error checking
 	# Mount filesystem
