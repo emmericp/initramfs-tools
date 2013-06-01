@@ -175,6 +175,7 @@ if [ -n "$fs" ] && mount | grep -q "on $fs .*noexec" ; then
 fi
 
 __TMPCPIOGZ="$(mktemp ${TMPDIR:-/var/tmp}/mkinitramfs-OL_XXXXXX)" || exit 1
+__TMPEARLYCPIO="$(mktemp ${TMPDIR:-/var/tmp}/mkinitramfs-FW_XXXXXX)" || exit 1
 
 DPKG_ARCH=`dpkg --print-architecture`
 
@@ -192,6 +193,9 @@ export BUSYBOX
 
 # Private, used by 'catenate_cpiogz'.
 export __TMPCPIOGZ
+
+# Private, used by 'prepend_earlyinitramfs'.
+export __TMPEARLYCPIO
 
 for d in bin conf/conf.d etc lib/modules run sbin scripts ${MODULESDIR}; do
 	mkdir -p "${DESTDIR}/${d}"
@@ -331,9 +335,17 @@ if [ "$DPKG_ARCH" = armhf ]; then
 fi
 
 [ "${verbose}" = y ] && echo "Building cpio ${outfile} initramfs"
+
+if [ -s "${__TMPEARLYCPIO}" ]; then
+	cat "${__TMPEARLYCPIO}" >"${outfile}" || exit 1
+else
+	# truncate
+	> "${outfile}"
+fi
+
 (
 # work around lack of "set -o pipefail" for the following pipe:
-# cd "${DESTDIR}" && find . | cpio --quiet -R 0:0 -o -H newc | gzip >"${outfile}" || exit 1
+# cd "${DESTDIR}" && find . | cpio --quiet -R 0:0 -o -H newc | gzip >>"${outfile}" || exit 1
 exec 3>&1
 eval `
 	# http://cfaj.freeshell.org/shell/cus-faq-2.html
@@ -343,7 +355,7 @@ eval `
 		find . 4>&-; echo "ec1=$?;" >&4
 	} | {
 		cpio --quiet -R 0:0 -o -H newc 4>&-; echo "ec2=$?;" >&4
-	} | ${compress} >"${outfile}"
+	} | ${compress} >>"${outfile}"
 	echo "ec3=$?;" >&4
 `
 if [ "$ec1" -ne 0 ]; then
@@ -365,10 +377,11 @@ if [ -s "${__TMPCPIOGZ}" ]; then
 fi
 
 if [ "${keep}" = "y" ]; then
-	echo "Working files in ${DESTDIR} and overlay in ${__TMPCPIOGZ}"
+	echo "Working files in ${DESTDIR}, early initramfs in ${__TMPEARLYCPIO} and overlay in ${__TMPCPIOGZ}"
 else
 	rm -rf "${DESTDIR}"
 	rm -rf "${__TMPCPIOGZ}"
+	rm -rf "${__TMPEARLYCPIO}"
 fi
 
 exit 0
