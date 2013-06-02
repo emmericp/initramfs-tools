@@ -36,6 +36,13 @@ List content of two initramfs files in verbose mode:
 .PP
 .B lsinitramfs -l /boot/vmlinuz-2.6.31-grml64 /boot/vmlinuz-2.6.33-grml64
 
+.SH BUGS
+.BR lsinitramfs
+cannot deal with multiple-segmented initramfs images, such as those created
+when an early (uncompressed) initramfs with system firmware is prepended to
+the regular compressed initrams, or when overlay data is appended to the
+initramfs.
+
 .SH AUTHOR
 The initramfs-tools are written by Maximilian Attems <maks@debian.org>
 and numerous others.
