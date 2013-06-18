@@ -1,3 +1,12 @@
+initramfs-tools (0.113) unstable; urgency=low
+
+  [ Henrique de Moraes Holschuh ]
+  * [f59e716] implement early initramfs support (Closes: #712521)
+  * [b8295f0] lsinitramfs(8): document failure to deal with early
+    initramfs
+
+ -- Michael Prokop <mika@debian.org>  Tue, 18 Jun 2013 09:32:58 +0200
+
 initramfs-tools (0.112) unstable; urgency=low
 
   * Add myself to Uploaders
