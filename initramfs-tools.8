@@ -240,6 +240,20 @@ and copy them to the initramfs. This means that most executables, unless
 compiled with klibc, will automatically include glibc in the image which will
 increase its size by several hundred kilobytes.
 
+.SS Including a system firmware preimage (early initramfs)
+If you need to prepend data to the initramfs image, you need to prepare it
+in a file, and call the \fB\fIprepend_earlyinitramfs\fR function.  The file
+can be disposed of as soon as the function returns.
+
+.B Example:
+.nf
+TEMP_FILE=$(mktemp ...)
+  ...
+prepend_earlyinitramfs ${TEMP_FILE}
+rm -f ${TEMP_FILE}
+
+.RE
+
 .SS Exported variables
 mkinitramfs sets several variables for the hook scripts environment.
 

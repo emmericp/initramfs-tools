@@ -1,8 +1,17 @@
-initramfs-tools (0.112~bpo70+1) wheezy-backports; urgency=low
+initramfs-tools (0.113~bpo70+1) wheezy-backports; urgency=low
 
   * Rebuild for wheezy
 
- -- Ben Hutchings <ben@decadent.org.uk>  Sat, 22 Jun 2013 04:12:30 +0100
+ -- Ben Hutchings <ben@decadent.org.uk>  Sat, 17 Aug 2013 16:09:34 +0200
+
+initramfs-tools (0.113) unstable; urgency=low
+
+  [ Henrique de Moraes Holschuh ]
+  * [f59e716] implement early initramfs support (Closes: #712521)
+  * [b8295f0] lsinitramfs(8): document failure to deal with early
+    initramfs
+
+ -- Michael Prokop <mika@debian.org>  Tue, 18 Jun 2013 09:32:58 +0200
 
 initramfs-tools (0.112) unstable; urgency=low
 

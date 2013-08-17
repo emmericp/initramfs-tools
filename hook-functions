@@ -10,6 +10,16 @@ catenate_cpiogz() {
 	cat "${1}" >>"${__TMPCPIOGZ}"
 }
 
+prepend_earlyinitramfs() {
+	# Sanity check
+	if [ ! -e "${1}" ]; then
+		echo "W: prepend_earlyinitramfs: arg1='${1}' does not exist." >&2
+		return
+	fi
+
+	cat "${1}" >>"${__TMPEARLYCPIO}"
+}
+
 # force_load module [args...]
 force_load()
 {
