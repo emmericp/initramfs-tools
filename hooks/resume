@@ -50,6 +50,6 @@ if [ -n "$RESUME" ] && command -v blkid >/dev/null 2>&1; then
 fi
 
 # Write detected resume to intramfs conf.d/resume if not in a chroot
-if [ -n "${RESUME}" ] && !chrooted; then
+if [ -n "${RESUME}" ] && ! chrooted; then
 	echo "RESUME=${RESUME}" > ${DESTDIR}/conf/conf.d/resume
 fi
