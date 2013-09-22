@@ -1,3 +1,21 @@
+initramfs-tools (0.114) unstable; urgency=low
+
+  [ Ian Campbell ]
+  * [90f4cdb] include ehci-orion in auto_add_modules_list (Closes: #721519)
+
+  [ maximilian attems ]
+  * [fef37d5] hooks: Add resume hook instead of hardcoding RESUME once on
+    preinst (Closes: #565225, LP 50437)
+  * [5550692] hooks/resume: First check if a valid RESUME config is set
+  * [e268df7] initramfs-tools.8: Document new resume handling
+  * [6f0396a] hooks/klibc: Check for existence of klibc dash instead of
+    executable property (Closes: #707040)
+  * [9c823ad] mkinitramfs: check if initramfs has a shell
+  * [6ad0985] hooks/resume: Fix function call
+  * Update to latest standards version 3.9.4.
+
+ -- maximilian attems <maks@debian.org>  Sun, 22 Sep 2013 21:04:19 +0200
+
 initramfs-tools (0.113) unstable; urgency=low
 
   [ Henrique de Moraes Holschuh ]
