@@ -19,7 +19,7 @@ esac
 test -r /etc/initramfs-tools/conf.d/resume \
 	&& . /etc/initramfs-tools/conf.d/resume
 if [ -n "$RESUME" ] && command -v blkid >/dev/null 2>&1 \
-	&& blikd -p -n swap $RESUME >/dev/null 2>&1; then
+	&& blkid -p -n swap $RESUME >/dev/null 2>&1; then
 	# As mkinitramfs copies the config file nothing to do.
 	exit 0
 fi
