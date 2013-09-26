@@ -396,7 +396,7 @@ configure_networking()
 			# grab device entry from ip option
 			NEW_DEVICE=${IP#*:*:*:*:*:*}
 			if [ "${NEW_DEVICE}" != "${IP}" ]; then
-				NEW_DEVICE=${NEW_DEVICE%:*}
+				NEW_DEVICE=${NEW_DEVICE%%:*}
 			else
 				# wrong parse, possibly only a partial string
 				NEW_DEVICE=
