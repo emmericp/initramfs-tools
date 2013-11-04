@@ -1,3 +1,21 @@
+initramfs-tools (0.115) unstable; urgency=low
+
+  [ Nikolaus Schulz ]
+  * [736200b] hooks/resume: fix validation of $RESUME in config file
+    (Closes: #724554)
+
+  [ Matto Marjanovic ]
+  * [b4fc5de] hooks/function: More solide ip= option parsing (Closes:
+    #724644)
+
+  [ maximilian attems ]
+  * [9f7bb9c] init: support UUID for resume bootarg
+
+  [ Michael Prokop ]
+  * [9da5948] Add ohci-pci to base modules (Closes: #726957)
+
+ -- Michael Prokop <mika@debian.org>  Mon, 04 Nov 2013 10:10:23 +0100
+
 initramfs-tools (0.114) unstable; urgency=low
 
   [ Ian Campbell ]
