@@ -47,6 +47,7 @@ panic()
 	modprobe -v i8042 || true
 	modprobe -v atkbd || true
 	modprobe -v ehci-pci || true
+	modprobe -v ehci-orion || true
 	modprobe -v ehci-hcd || true
 	modprobe -v uhci-hcd || true
 	modprobe -v ohci-hcd || true
@@ -395,7 +396,7 @@ configure_networking()
 			# grab device entry from ip option
 			NEW_DEVICE=${IP#*:*:*:*:*:*}
 			if [ "${NEW_DEVICE}" != "${IP}" ]; then
-				NEW_DEVICE=${NEW_DEVICE%:*}
+				NEW_DEVICE=${NEW_DEVICE%%:*}
 			else
 				# wrong parse, possibly only a partial string
 				NEW_DEVICE=

@@ -317,6 +317,11 @@ if [ -e "${CONFDIR}/DSDT.aml" ]; then
 	copy_exec "${CONFDIR}/DSDT.aml" /
 fi
 
+# Make sure there is a final sh in initramfs
+if [ ! -e "${DESTDIR}/bin/sh" ]; then
+	copy_exec /bin/sh "${DESTDIR}/bin/"
+fi
+
 # Remove any looping or broken symbolic links, since they break cpio.
 [ "${verbose}" = y ] && xargs_verbose="-t"
 (cd "${DESTDIR}" && find . -type l -printf '%p %Y\n' | sed -n 's/ [LN]$//p' \

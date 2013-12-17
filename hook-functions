@@ -432,7 +432,7 @@ auto_add_modules()
 	for arg in "$@" ; do
 		case "$arg" in
 		base)
-			modules="$modules ehci-pci ehci-hcd ohci-hcd uhci-hcd usbhid"
+			modules="$modules ehci-pci ehci-orion ehci-hcd ohci-hcd ohci-pci uhci-hcd usbhid"
 			modules="$modules xhci xhci-hcd"
 			modules="$modules btrfs ext2 ext3 ext4 ext4dev "
 			modules="$modules isofs jfs reiserfs udf xfs"

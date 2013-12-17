@@ -66,8 +66,9 @@ either local or NFS (affects which initramfs scripts are run, see the "Subdirect
 
 .TP
 \fB\fI resume
-On install initramfs-tools tries to autodetect the resume partition. On success
-the RESUME variable is written to /etc/initramfs-tools/conf.d/resume.
+The resume hook tries to autodetect the resume partition and uses the first
+swap partition as valid guess. It is possible to set the RESUME variable in
+/etc/initramfs-tools/conf.d/resume.
 The boot variable noresume overrides it.
 
 .TP

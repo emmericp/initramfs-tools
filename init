@@ -133,6 +133,10 @@ for x in $(cat /proc/cmdline); do
 		;;
 	resume=*)
 		RESUME="${x#resume=}"
+		case $RESUME in
+	        UUID=*)
+			RESUME="/dev/disk/by-uuid/${RESUME#UUID=}"
+		esac
 		;;
 	resume_offset=*)
 		resume_offset="${x#resume_offset=}"
