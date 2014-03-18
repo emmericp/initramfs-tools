@@ -17,7 +17,7 @@ tmpfs_size="10M"
 if [ -e /etc/udev/udev.conf ]; then
 	. /etc/udev/udev.conf
 fi
-if ! mount -t devtmpfs -o mode=0755 udev /dev; then
+if ! mount -t devtmpfs -o size=$tmpfs_size,mode=0755 udev /dev; then
 	echo "W: devtmpfs not available, falling back to tmpfs for /dev"
 	mount -t tmpfs -o size=$tmpfs_size,mode=0755 udev /dev
 	[ -e /dev/console ] || mknod -m 0600 /dev/console c 5 1
@@ -26,7 +26,7 @@ fi
 mkdir /dev/pts
 mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 mount -t tmpfs -o "nosuid,size=20%,mode=0755" tmpfs /run
-mkdir /run/initramfs
+mkdir -m 0755 /run/initramfs
 
 # Export the dpkg architecture
 export DPKG_ARCH=
@@ -186,6 +186,11 @@ for x in $(cat /proc/cmdline); do
 	esac
 done
 
+# Default to BOOT=local if no boot script defined.
+if [ -z "${BOOT}" ]; then
+	BOOT=local
+fi
+
 if [ -n "${noresume}" ]; then
 	export noresume
 	unset resume
@@ -237,10 +242,6 @@ else
 	fi
 	umount /run
 fi
-
-# Move virtual filesystems over to the real filesystem
-mount -n -o move /sys ${rootmnt}/sys
-mount -n -o move /proc ${rootmnt}/proc
 
 validate_init() {
 	checktarget="${1}"
@@ -314,6 +315,15 @@ unset readonly
 unset resume
 unset resume_offset
 
+# Move virtual filesystems over to the real filesystem
+mount -n -o move /sys ${rootmnt}/sys
+mount -n -o move /proc ${rootmnt}/proc
+
 # Chain to real filesystem
-exec run-init ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
-panic "Could not execute run-init."
+if command -v switch_root >/dev/null 2>&1; then
+	exec switch_root ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
+elif command -v run-init >/dev/null 2>&1; then
+	exec run-init ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
+fi
+echo "Something went badly wrong in the initramfs."
+panic "Please file a bug on initramfs-tools."

@@ -20,5 +20,6 @@ if [ "${BUSYBOX}" != "n" ] && [ -e ${BUSYBOXDIR}/busybox ]; then
 	. /usr/share/initramfs-tools/hook-functions
 	rm -f ${DESTDIR}/bin/sh
 	rm -f ${DESTDIR}/bin/busybox
-	copy_exec ${BUSYBOXDIR}/busybox /bin/sh
+	copy_exec ${BUSYBOXDIR}/busybox /bin/busybox
+	ln -s busybox ${DESTDIR}/bin/sh
 fi

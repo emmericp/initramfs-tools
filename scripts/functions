@@ -44,8 +44,12 @@ panic()
 		sleep ${panic}
 		reboot
 	fi
-	modprobe i8042
-	modprobe atkbd
+	modprobe -v i8042 || true
+	modprobe -v atkbd || true
+	modprobe -v ehci-hcd || true
+	modprobe -v uhci-hcd || true
+	modprobe -v ohci-hcd || true
+	modprobe -v usbhid || true
 	REASON="$@" PS1='(initramfs) ' /bin/sh -i </dev/console >/dev/console 2>&1
 }
 
@@ -72,7 +76,7 @@ set_initlist()
 		case ${si_x#${initdir}/} in
 		*[![:alnum:]\._-]*)
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: not alphanumeric or '_' file"
+			&& echo "$si_x ignored: not alphanumeric or '_' file" >&2
 			continue
 			;;
 		esac
@@ -80,21 +84,21 @@ set_initlist()
 		# skip non executable scripts
 		if [ ! -x ${si_x} ]; then
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: not executable"
+			&& echo "$si_x ignored: not executable" >&2
 			continue
 		fi
 
 		# skip directories
 		if [ -d ${si_x} ]; then
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: a directory"
+			&& echo "$si_x ignored: a directory" >&2
 			continue
 		fi
 
 		# skip bad syntax
 		if ! sh -n ${si_x} ; then
 			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: bad syntax"
+			&& echo "$si_x ignored: bad syntax" >&2
 			continue
 		fi
 
@@ -356,7 +360,9 @@ configure_networking()
 	fi
 
 	# networking already configured thus bail out
-	[ -n "${DEVICE}" ] && [ -e /tmp/net-"${DEVICE}".conf ] && return 0
+	[ -n "${DEVICE}" ] && [ -e /run/net-"${DEVICE}".conf ] && return 0
+
+	wait_for_udev 10
 
 	# support ip options see linux sources
 	# Documentation/filesystems/nfs/nfsroot.txt
@@ -367,7 +373,7 @@ configure_networking()
 		# The NIC is to be configured if this file does not exist.
 		# Ip-Config tries to create this file and when it succeds
 		# creating the file, ipconfig is not run again.
-		for x in /tmp/net-"${DEVICE}".conf /tmp/net-*.conf ; do
+		for x in /run/net-"${DEVICE}".conf /run/net-*.conf ; do
 			[ -e "$x" ] && break 2
 		done
 
@@ -403,11 +409,11 @@ configure_networking()
 	# source ipconfig output
 	if [ -n "${DEVICE}" ]; then
 		# source specific bootdevice
-		. /tmp/net-${DEVICE}.conf
+		. /run/net-${DEVICE}.conf
 	else
 		# source any interface...
 		# ipconfig should have quit after first response
-		. /tmp/net-*.conf
+		. /run/net-*.conf
 	fi
 }
 

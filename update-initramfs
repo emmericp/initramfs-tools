@@ -176,25 +176,9 @@ generate_initramfs()
 		mkinitramfs_return="$?"
 		remove_initramfs_bak
 		rm -f "${initramfs}.new"
-		if [ "$mkinitramfs_return" = "2" ]; then
-			# minversion wasn't met, exit 0
-			exit 0
-		fi
 		echo "update-initramfs: failed for ${initramfs} with $mkinitramfs_return." >&2
 		exit $mkinitramfs_return
 	fi
-}
-
-# lilo call
-run_lilo()
-{
-	# show lilo errors on failure
-	if ! lilo -t  > /dev/null 2>&1 ; then
-		echo "ERROR lilo fails for new ${initramfs}:" >&2
-		echo
-		lilo -t
-	fi
-	lilo
 }
 
 # Invoke bootloader
@@ -204,12 +188,6 @@ run_bootloader()
 	if [ -d /etc/initramfs/post-update.d/ ]; then
 		run-parts --arg=${version} --arg=${initramfs} \
 			/etc/initramfs/post-update.d/
-		return 0
-	fi
-
-	# FIXME: to be removed once flash-kernel installs a hook
-	if flash-kernel --supported >/dev/null 2>&1; then
-		flash-kernel ${version}
 		return 0
 	fi
 }
@@ -259,7 +237,7 @@ get_sorted_versions()
 		fi
 		worklist=""
 		for gsv_i in $version_list; do
-			if dpkg --compare-versions "${gsv_x}" '>' "${gsv_i}"; then
+			if dpkg --compare-versions "${gsv_x}" '>' "${gsv_i}" 2>/dev/null; then
 				worklist="${worklist} ${gsv_x} ${gsv_i}"
 				gsv_x=""
 			else
@@ -330,6 +308,8 @@ create()
 	fi
 
 	generate_initramfs
+
+	run_bootloader
 }
 
 update()

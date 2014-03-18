@@ -1,8 +1,208 @@
-initramfs-tools (0.99~bpo60+1) squeeze-backports; urgency=low
+initramfs-tools (0.109.1~bpo60+1) UNRELEASED; urgency=low
 
-  * Rebuild for squeeze.
+  * Rebuild for squeeze
 
- -- Norbert Tretkowski <norbert@tretkowski.de>  Tue, 26 Jul 2011 10:52:11 +0200
+ -- Ben Hutchings <ben@decadent.org.uk>  Tue, 18 Mar 2014 18:16:30 +0000
+
+initramfs-tools (0.109.1) unstable; urgency=low
+
+  * Team upload
+  * [1314bff] hook-functions: Include more HID drivers in base
+    (Closes: #697619)
+
+ -- Ben Hutchings <ben@decadent.org.uk>  Wed, 17 Apr 2013 02:20:49 +0100
+
+initramfs-tools (0.109) unstable; urgency=low
+
+  * keymap hook: provide warning message if loadkeys/setupcon are not
+    available. Thanks to Raphael Hertzog <hertzog@debian.org> for the
+    feedback (Closes: #689336)
+
+ -- Michael Prokop <mika@debian.org>  Sat, 06 Oct 2012 00:43:00 +0200
+
+initramfs-tools (0.108) unstable; urgency=low
+
+  [ maximilian attems ]
+  * [a8420de] hook-functions: add hid-generic module (Closes: #682340)
+  * [9723143] debian/control: Scratch 2.6 mention
+
+  [ Petr Baudis ]
+  * [1d6b272] initramfs-tools: allow disabling initrd for make deb-pkg
+    (Closes: #664171)
+
+  [ Michael Prokop ]
+  * [0ffc800] Use setupcon to install system's keymap. Thanks to
+    Andreas Altergott <andreasaltergott@googlemail.com> for the initial
+    patch. Thanks to Raphaël Hertzog <hertzog@debian.org> for testing,
+    feedback and review. (Closes: #619711)
+
+ -- Michael Prokop <mika@debian.org>  Fri, 21 Sep 2012 12:10:28 +0200
+
+initramfs-tools (0.107) unstable; urgency=low
+
+  [ Michal Suchanek ]
+  * initramfs-tools: copy_exec quote ${src}
+  * initramfs-tools: copy_exec add pattern for nonoptimized multiarch
+    libraries (Closes: #659752)
+
+  [ Vagrant Cascadian ]
+  * initramfs-tools Don't override root=/dev/nfs by BOOT=local config
+    (Closes: #677157)
+
+  [ Adam Conrad ]
+  * hooks/klibc: Make us play more nicely with busybox and static bin/sh
+    (Closes: #638068)
+  * Kernel versions aren't (necessarily) package versions, so redirect
+    the whining from dpkg --compare-versions to /dev/null to avoid scary
+    (and incorrect) warnings. (LP: #889584)
+
+ -- Adam Conrad <adconrad@0c3.net>  Mon, 09 Jul 2012 11:07:21 -0600
+
+initramfs-tools (0.106) unstable; urgency=high
+
+  [ Josh Triplett ]
+  * [67d4cec] initramfs-tools: Make manual_add_modules a no-op with no
+    arguments (Closes: 676439)
+
+ -- Michael Prokop <mika@debian.org>  Thu, 07 Jun 2012 14:40:24 +0200
+
+initramfs-tools (0.105) unstable; urgency=high
+
+  [ Thomas Lange ]
+  * [c52544d] initramfs-tools: kernel script check for update-initramfs
+    executuable.  (Closes: #669345)
+
+  [ maximilian attems ]
+  * [44b93e0] initramfs-tools: guard too kernel postrm script.
+
+  [ Josh Triplett ]
+  * [95d8e7a] initramfs-tools: fix update-initramfs with modprobe options.
+    (Closes: #676400)
+
+ -- maximilian attems <maks@debian.org>  Wed, 06 Jun 2012 22:38:38 +0200
+
+initramfs-tools (0.104) unstable; urgency=high
+
+  [ Michael Prokop ]
+  * [9e961c6] docs: clarify that PREREQ is only honored inside single directory.
+    Thanks to Marc Haber <mh+debian-bugs@zugschlus.de> for spotting thjs issue
+    (Closes: #601324)
+
+  [ maximilian attems ]
+  * [b60b440] debian/control: Depend on kmod or m-i-t.
+  * [f87e71b] hook-functions: handle rootfs output from mount(8).
+    (Closes: #668616)
+  * [042c5c9] init: tighten /run/initramfs permissions. (Closes: #655175)
+  * [df4ffdf] scripts/functions: panic() don't abort on modprobe failures.
+    (Closes: #674484)
+
+  [ Vagrant Cascadian ]
+  * [ddbdb4f] init: busybox's switch_root doesn't handle /proc or /sys moving.
+    (Closes: #660297)
+
+  [ Balwinder S Dheeman ]
+  * [3ff8ee6] init: fixes ignored $tmpfs_size. (Closes: #670496)
+
+  [ Josh Triplett ]
+  * [2c5c942] initramfs-tools: speed-up by avoiding forks in the per-module
+    hot path. (Closes: #652525)
+
+ -- maximilian attems <maks@debian.org>  Wed, 06 Jun 2012 14:48:26 +0200
+
+initramfs-tools (0.103) unstable; urgency=low
+
+  * [3fd3568] configure_networking: Use /run path for ipconfig generated
+    script.
+  * [886abf0] debian/control: Depend on newer klibc-utils for /run path.
+
+ -- maximilian attems <maks@debian.org>  Thu, 31 May 2012 15:57:37 +0200
+
+initramfs-tools (0.102) unstable; urgency=low
+
+  * [da64d1a] Deal with the uniquely broken situation of armhf having
+    two linkers by creating both if we find either one in the target
+  * [2f988c4] Add myself to uploaders and release
+
+ -- Adam Conrad <adconrad@0c3.net>  Tue, 17 Apr 2012 17:43:08 -0600
+
+initramfs-tools (0.101) unstable; urgency=low
+
+  Release "inbox zero ☕"
+
+  [ maximilian attems ]
+  * [9b2a4c4] hook-functions: ext4dev is gone
+  * [48c77ac] debian/control: Get rid of old findutils versioned depends
+  * [7cccc87] update-initramfs: Don't call flash-kernel directly
+
+  [ Ben Hutchings ]
+  * [71ece14] mkinitramfs: Copy modules.builtin into initramfs
+    (Closes: #659866)
+
+  [ Vadim Solomin ]
+  * [523ec93] initramfs-tools: Add per default missing hid-logitech-dj
+    (Closes: #658029)
+
+  [ Michael Prokop ]
+  * [18a5b5e] Bump Standards-Version to 3.9.3
+
+ -- Michael Prokop <mika@debian.org>  Tue, 06 Mar 2012 13:54:27 +0100
+
+initramfs-tools (0.100) unstable; urgency=low
+
+  Release "singing in the snow ☃☃☃"
+
+  [ Michael Prokop ]
+  * [16280bb] lsinitramfs: support xz/lzma, bzip2 and lzop as compress
+    methods. (Closes: #586381)
+  * [ee16a4e] set_initlist: redirect warning messages to stderr.
+    (Closes: #601319)
+  * [af110e0] Alternate Recommends on busybox-static (Closes: #639902,
+    #454665)
+  * [b61413d] warn user if directory is present in confdir
+    (Closes: #610462)
+
+  [ maximilian attems ]
+  * [5409ca7] manual_add_modules: No longer add firmware.agent too.
+    (Closes: #566401)
+  * [4f98b0b] mkinitramfs: Use version comparison for xz or other
+    compression tools (Closes: #624702)
+  * [d479b47] initramfs-tools: rephrase description
+  * [07c822f] mkinitramfs: Check if TMPDIR is writable
+  * [b9ff58c] mkinitramfs: Use /var/tmp rather then /tmp for space reasons
+  * [bd3c5d8] Revert "Revert "mkinitramfs: Nuke MIN_VERSION handling.""
+  * [313db4c] MODULES=dep: Use /sys again to decide for libata or ide
+    (Closes: #607888)
+  * [9bec96f] debian/control: Drop versioned depend on pre-Etch udev
+    version
+  * [02ea666] debian/control: Tighten dep on klibc-utils 1.5.23-2
+  * [5c68e6e] init: Prepare for switch_root(8) usage
+  * [5e1f500] update-initramfs: Cleanup nowadays unused run_lilo()
+  * [b0d14a0] update-initramfs: run_bootloader() hooks on create too
+  * [8d0ffcb] preinst: get rid of awk usage (Closes: #589963)
+
+  [ Timo Juhani Lindfors ]
+  * [63932cc] panic(): print the name of each module before loading it
+  * [cd1981e] panic: Load modules for highly probable USB keyboard
+    (Closes: #615831)
+
+  [ Martin Pitt ]
+  * [b1530ee] hooks/busybox: Fix 2.99 busybox breakage (Closes: #628374)
+
+  [ Alkis Georgopoulos ]
+  * [b938c7e] configure_networking() wait for udev to populate available
+    nics (LP: #682445)
+
+  [ Harald Hoyer ]
+  * [9249db6] MODULES=dep: awk free version for root dev search
+
+  [ Sven Joachim ]
+  * [717397c] copy_exec: Handle optimized libraries under multiarch paths
+    (Closes: #636495)
+
+  [ Colin Watson ]
+  * [6cf2bd7] mark Multi-Arch: foreign (Closes: #649399)
+
+ -- Michael Prokop <mika@debian.org>  Tue, 14 Feb 2012 14:42:23 +0100
 
 initramfs-tools (0.99) unstable; urgency=low
 
