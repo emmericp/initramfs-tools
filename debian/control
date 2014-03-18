@@ -12,11 +12,11 @@ Package: initramfs-tools
 Architecture: all
 Multi-Arch: foreign
 Recommends: busybox (>= 1:1.01-3) | busybox-initramfs | busybox-static
-Depends: klibc-utils (>= 2.0-1~), cpio, kmod | module-init-tools, udev, ${misc:Depends}
+Depends: klibc-utils (>= 1.5.23-2~), cpio, kmod | module-init-tools, udev, ${misc:Depends}
 Suggests: bash-completion
 Provides: linux-initramfs-tool
 Conflicts: usplash (<< 0.5.50)
-Breaks: cryptsetup (<< 2:1.1.0-2.1), elilo (<< 3.12-3.1~), lilo (<< 22.8-8.2~), s390-tools (<< 1.8.3-2~), console-setup (>= 1.71~)
+Breaks: cryptsetup (<< 2:1.1.0-2.1), elilo (<< 3.12-3.1~), lilo (<< 22.8-8.2~), s390-tools (<< 1.8.3-2~), console-setup (>= 1.71~), klibc-utils (>= 2.0-1~)
 Description: generic modular initramfs generator
  This package contains tools to create a bootable initramfs for Linux kernel
  packages. The initramfs is a compressed cpio archive. At boot time, the
