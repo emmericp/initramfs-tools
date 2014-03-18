@@ -16,7 +16,7 @@ Depends: klibc-utils (>= 2.0-1~), cpio, kmod | module-init-tools, udev, ${misc:D
 Suggests: bash-completion
 Provides: linux-initramfs-tool
 Conflicts: usplash (<< 0.5.50)
-Breaks: cryptsetup (<< 2:1.1.0-2.1), elilo (<< 3.12-3.1~), lilo (<< 22.8-8.2~), s390-tools (<< 1.8.3-2~), console-setup (<< 1.72)
+Breaks: cryptsetup (<< 2:1.1.0-2.1), elilo (<< 3.12-3.1~), lilo (<< 22.8-8.2~), s390-tools (<< 1.8.3-2~)
 Description: generic modular initramfs generator
  This package contains tools to create a bootable initramfs for Linux kernel
  packages. The initramfs is a compressed cpio archive. At boot time, the

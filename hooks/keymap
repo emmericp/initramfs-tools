@@ -21,17 +21,19 @@ if [ "$KEYMAP" != "y" ] && [ "$KEYMAP" != "Y" ]; then
 fi
 
 # Step 1 - Basic tools
-if [ ! -x /bin/loadkeys ] || [ ! -x /bin/setupcon ]; then
+if [ ! -x /bin/loadkeys ] ||
+! ( [ -r /etc/console/boottime.kmap.gz ] \
+	|| [ -r /etc/console-setup/cached.kmap.gz ] ); then
 	exit 0
 fi
 
 . /usr/share/initramfs-tools/hook-functions
 copy_exec /bin/loadkeys /bin
 
-if ! setupcon --save-keyboard ${DESTDIR}/etc/boottime.kmap.gz ; then
-	echo "Warning: error while trying to store keymap file - ignoring request to install /etc/boottime.kmap.gz"
-	rm -f ${DESTDIR}/etc/boottime.kmap.gz
-	exit 0
+if [ -e /etc/console-setup/cached.kmap.gz ]; then
+	cp /etc/console-setup/cached.kmap.gz ${DESTDIR}/etc/boottime.kmap.gz
+else
+	cp /etc/console/boottime.kmap.gz ${DESTDIR}/etc/
 fi
 
 # Step 2 - Check for UTF8 console
