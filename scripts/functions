@@ -307,6 +307,7 @@ get_fstype ()
 
 	# blkid has a more complete list of file systems,
 	# but fstype is more robust
+	FSTYPE="unknown"
 	eval $(fstype "${FS}" 2> /dev/null)
 	if [ "$FSTYPE" = "unknown" ] &&  command -v blkid >/dev/null 2>&1 ; then
 		FSTYPE=$(blkid -o value -s TYPE "${FS}")
