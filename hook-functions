@@ -399,7 +399,7 @@ dep_add_modules()
 	fi
 
 	if [ -e /sys/bus/virtio ] ; then
-		modules="$modules virtio_pci"
+		modules="$modules virtio_pci virtio_mmio"
 	fi
 
 	if [ -e /sys/bus/i2o/devices/ ]; then
@@ -437,7 +437,8 @@ auto_add_modules()
 			modules="$modules btrfs ext2 ext3 ext4 ext4dev "
 			modules="$modules isofs jfs reiserfs udf xfs"
 			modules="$modules nfs nfsv2 nfsv3 nfsv4"
-			modules="$modules af_packet atkbd i8042 virtio_pci"
+			modules="$modules af_packet atkbd i8042"
+			modules="$modules virtio_pci virtio_mmio"
 
 			# Include all HID drivers unless we're sure they
 			# don't support keyboards.  hid-*ff covers various
