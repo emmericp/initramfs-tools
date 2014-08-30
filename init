@@ -54,6 +54,7 @@ export panic=
 export blacklist=
 export resume=
 export resume_offset=
+export drop_caps=
 
 # Bring in the main config
 . /conf/initramfs.conf
@@ -143,6 +144,9 @@ for x in $(cat /proc/cmdline); do
 		;;
 	noresume)
 		noresume=y
+		;;
+	drop_capabilities=*)
+		drop_caps="-d ${x#drop_capabilities=}"
 		;;
 	panic=*)
 		panic="${x#panic=}"
@@ -298,7 +302,7 @@ fi
 maybe_break init
 
 # don't leak too much of env - some init(8) don't clear it
-# (keep init, rootmnt)
+# (keep init, rootmnt, drop_caps)
 unset debug
 unset MODPROBE_OPTIONS
 unset DPKG_ARCH
@@ -324,10 +328,10 @@ mount -n -o move /sys ${rootmnt}/sys
 mount -n -o move /proc ${rootmnt}/proc
 
 # Chain to real filesystem
-if command -v switch_root >/dev/null 2>&1; then
+if [ -z "$drop_caps" ] && command -v switch_root >/dev/null 2>&1; then
 	exec switch_root ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
 elif command -v run-init >/dev/null 2>&1; then
-	exec run-init ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
+	exec run-init ${drop_caps} ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console
 fi
 echo "Something went badly wrong in the initramfs."
 panic "Please file a bug on initramfs-tools."
