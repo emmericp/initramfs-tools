@@ -512,7 +512,9 @@ auto_add_modules()
 hidden_dep_add_modules()
 {
 	local modules=
-	for dep in "lib/libcrc32c crc32c" "fs/ubifs/ubifs deflate zlib lzo"; do
+	for dep in "lib/libcrc32c crc32c" \
+			"fs/ubifs/ubifs deflate zlib lzo" \
+			"fs/btrfs/btrfs crc32c"; do
 		set -- $dep
 		if [ -f "${DESTDIR}/lib/modules/${version}/kernel/$1.ko" ]; then
 			shift
