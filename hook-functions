@@ -366,6 +366,11 @@ dep_add_modules()
 	elif [ "${root#/dev/etherd/}" != "${root}" ]; then
 		block=${root#/dev/etherd/*}
 		block="etherd!${block%p*}"
+	# i2o raid device
+	elif [ "${root#/dev/i2o/}" != "${root}" ]; then
+		block=${root#/dev/i2o/}
+		block=${block%%[0-9]*}
+		block='i2o!'$block
 	# classical root device
 	else
 		block=${root#/dev/}
