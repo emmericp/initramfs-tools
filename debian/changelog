@@ -1,3 +1,43 @@
+initramfs-tools (0.116) unstable; urgency=medium
+
+  The "DebConf14" release
+
+  [ Helge Deller ]
+  * [cee3e18] get_fstype: initialize FSTYPE variable (Closes: #745731)
+
+  [ maximilian attems ]
+  * [7bc24f8] scripts/nfs: fix nfs mount check for possible init symlink
+    (Closes: #750360)
+
+  [ Aurelien Jarno ]
+  * [2e325a2] hook-functions: add support for virtio-mmio
+    (Closes: #751143)
+
+  [ Michael Prokop ]
+  * [4c0338a] Fix hidden dependency issue with btrfs and crc32c. Thanks to
+    Markus Wanner <markus@bluegap.ch> for the analysis and patch
+    (Closes: #748805)
+  * [2290173] Do not spawn shell when panic=... is used. Thanks to Lukas
+    Anzinger <l.anzinger@gmail.com> for the analysis and patch
+    (Closes: #751488)
+  * [0e914d0] Preserve file permissions if root builds the initramfs
+    images. Thanks to Harald Hoyer <harald@redhat.com> for providing the
+    patch in dracut (Closes: #633582)
+  * [39d0561] Support drop_capabilities=... boot option. Thanks to Kees
+    Cook <kees@debian.org> for the patch (Closes: #679436)
+  * [3d6fe1e] Support MODULES=dep usage on i2o hardware RAID controller.
+    Thanks to Stephen Powell <zlinuxman@wowway.com> for the patch
+    (Closes: #689558)
+  * [a5126cf] Support usage of partitioned nbd devices with MODULES=dep.
+    Thanks to Ian Campbell <ijc@hellion.org.uk> for the patch
+    (Closes: #697368)
+  * [ebeffcd] Inform user that lsinitramfs doesn't support cpio archives
+    yet. Thanks to Javier Barroso <javibarroso@gmail.com> for the initial
+    patch
+  * [ad7ab64] Bump Standards-Version to 3.9.5
+
+ -- Michael Prokop <mika@debian.org>  Sun, 31 Aug 2014 00:12:42 -0700
+
 initramfs-tools (0.115) unstable; urgency=low
 
   [ Nikolaus Schulz ]
