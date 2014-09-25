@@ -1,3 +1,49 @@
+initramfs-tools (0.117) unstable; urgency=medium
+
+  [ Roger Leigh ]
+  * Generalise logic used for mounting the rootfs:
+    - The existing logic was only intended for mounting the root
+      filesystem; this logic has been refactored to support the
+      mounting of multiple filesystems
+    - Add a read_fstab_entry function to parse /etc/fstab on the
+      mounted rootfs
+    - Add resolve_device function which generalises the existing
+      support for resolving LABEL= and UUID= strings to the
+      corresponding device node
+    - Add general mount_top, mount_premount and mount_bottom functions,
+      with boot-script-specific variants for the local and nfs scripts;
+      other boot scripts should override them if needed; the local and
+      nfs scripts show how to use these to redirect to a specific
+      implementation
+    - Add general mountfs function to mount a filesystem from the
+      /etc/fstab on the mounted rootfs.  This works for both local and
+      nfs mounts; other boot scripts may override it to provide more
+      specialised functionality
+    - The local and nfs bottom scripts are run on demand if used; this
+      does not interfere with alternative boot scripts being used,
+      which will run first
+    - Canonicalise device names to match util-linux mount behaviour;
+      this ensures that "mount -a" in mountall does not try to mount
+      /usr a second time (which it will attempt if the mounted device
+      does not match the canonical device name)
+  * Mount /usr if present in the /etc/fstab on the mounted rootfs
+    (Closes: #652459)
+  * Check filesystems prior to mounting (Closes: #708000):
+    - Add empty /etc/fstab and symlink /etc/mtab to /proc/mounts;
+      not essential, but quell a number of fsck warnings
+    - Copy fsck and needed fsck helpers, plus logsave
+    - Add checkfs function, based on the initscripts checkroot
+      script
+    - local mount functions will call checkfs prior to mounting
+      the filesystem
+
+  [ Michael Prokop ]
+  * [3298dea] Bump Standards-Version to 3.9.6
+  * [a12d5ed] hooks/fsck: fall back to blkid, make sure fsck binary exists
+    + install /sbin/sulogin
+
+ -- Michael Prokop <mika@debian.org>  Thu, 25 Sep 2014 10:49:26 +0200
+
 initramfs-tools (0.116) unstable; urgency=medium
 
   The "DebConf14" release
