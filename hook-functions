@@ -76,7 +76,7 @@ manual_add_modules()
 		fi
 
 		# Add required firmware
-		for firmware in $(modinfo -F firmware "${kmod}"); do
+		for firmware in $(modinfo -k "${version}" -F firmware "${kmod}"); do
 			if [ -e "${DESTDIR}/lib/firmware/${firmware}" ] \
 			|| [ -e "${DESTDIR}/lib/firmware/${version}/${firmware}" ]; then
 				continue
