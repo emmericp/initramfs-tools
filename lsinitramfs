@@ -51,10 +51,21 @@ listarchive()
 		bzip2 -c -d "${archive}" | cpio ${cpio_args}
 	elif lzop -t "${archive}" >/dev/null 2>&1 ; then
 		lzop -c -d "${archive}" | cpio ${cpio_args}
-	elif file "$initramfs" 2>/dev/null | grep -q "cpio archive" ; then
-		echo "lsinitramfs does not yet support cpio archive initramfs files." >&2
-		echo "See http://bugs.debian.org/717805 for more information." >&2
 	fi
+}
+
+# Read bytes out of a file, checking that they are valid hex digits
+readhex()
+{
+	dd < "$1" bs=1 skip="$2" count="$3" 2> /dev/null | \
+		LANG=C grep -E "^[0-9A-Fa-f]{$3}\$"
+}
+
+# Check for a zero byte in a file
+checkzero()
+{
+	dd < "$1" bs=1 skip="$2" count=1 2> /dev/null | \
+		LANG=C grep -q -z '^$'
 }
 
 for initramfs in "$@" ; do
@@ -63,7 +74,39 @@ for initramfs in "$@" ; do
 		exit 1
 	else
 		echo "${initramfs}"
-		listarchive "${initramfs}"
+
+		# There may be a prepended uncompressed archive.  cpio
+		# won't tell us the true size of this so we have to
+		# parse the headers and padding ourselves.  This is
+		# very roughly based on linux/lib/earlycpio.c
+		offset=0
+		while true; do
+			if checkzero "$initramfs" $offset; then
+				offset=$((offset + 4))
+				continue
+			fi
+			magic="$(readhex "$initramfs" $offset 6)" || break
+			test $magic = 070701 || test $magic = 070702 || break
+			namesize=0x$(readhex "$initramfs" $((offset + 94)) 8)
+			filesize=0x$(readhex "$initramfs" $((offset + 54)) 8)
+			offset=$(((offset + 110)))
+			offset=$(((offset + $namesize + 3) & ~3))
+			offset=$(((offset + $filesize + 3) & ~3))
+		done
+
+		if [ $offset -ne 0 ]; then
+			# List uncompressed archive
+			cpio ${cpio_args} < "$initramfs"
+
+			# List main archive
+			subarchive=$(mktemp ${TMPDIR:-/var/tmp}/lsinitramfs_XXXXXX)
+			trap "rm -f $subarchive" EXIT
+			dd < "$initramfs" bs="$offset" skip=1 2> /dev/null \
+				> $subarchive
+			listarchive $subarchive
+		else
+			listarchive "${initramfs}"
+		fi
 
 	fi
 done
