@@ -4,7 +4,7 @@ set -eu
 
 usage()
 {
-	echo "Usage: $(basename $0) <initramfs file>"
+	echo "Usage: $(basename $0) [-l] <initramfs file>"
 }
 
 if [ "$#" -eq 0 ] ; then
