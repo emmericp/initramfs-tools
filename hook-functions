@@ -262,7 +262,29 @@ dep_add_modules()
 	fi
 
 	if [ "${root}" = "/dev/root" ] ; then
-		root="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${root}) 2>/dev/null
+		if [ -b "${root}" ]; then
+			# Match it to the canonical device name by UUID
+			root="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${root}) 2>/dev/null
+		else
+			# Does not exist in our namespace, so look at the
+			# kernel command line
+			root=
+			for arg in $(cat /proc/cmdline); do
+				case "$arg" in
+				root=*)
+					root="${arg#root=}"
+					if [ "${root#/dev/}" = "$root" ]; then
+						root="/dev/$root"
+					fi
+					;;
+				--)
+					break
+					;;
+				*)
+					;;
+				esac
+			done
+		fi
 	fi
 
 	# recheck root device
