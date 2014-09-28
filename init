@@ -225,8 +225,12 @@ validate_init() {
 
 	# Work around absolute symlinks
 	if [ -d "${rootmnt}" ] && [ -h "${rootmnt}${checktarget}" ]; then
-		case $(readlink "${rootmnt}${checktarget}") in /*)
-			checktarget="$(chroot ${rootmnt} readlink ${checktarget})"
+		checktarget="$(readlink "${rootmnt}${checktarget}")"
+		case "$checktarget" in
+		/*)
+			;;
+		*)
+			checktarget="${1%/*}/$checktarget"
 			;;
 		esac
 	fi
