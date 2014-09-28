@@ -220,37 +220,6 @@ mount_premount
 mountroot
 log_end_msg
 
-if read_fstab_entry /usr; then
-	log_begin_msg "Mounting /usr file system"
-	mountfs /usr
-	log_end_msg
-fi
-
-# Mount cleanup
-mount_bottom
-nfs_bottom
-local_bottom
-
-maybe_break bottom
-[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-bottom"
-run_scripts /scripts/init-bottom
-[ "$quiet" != "y" ] && log_end_msg
-
-# Preserve information on old systems without /run on the rootfs
-if [ -d ${rootmnt}/run ]; then
-	mount -n -o move /run ${rootmnt}/run
-else
-	# The initramfs udev database must be migrated:
-	if [ -d /run/udev ] && [ ! -d /dev/.udev ]; then
-		mv /run/udev /dev/.udev
-	fi
-	# The initramfs debug info must be migrated:
-	if [ -d /run/initramfs ] && [ ! -d /dev/.initramfs ]; then
-		mv /run/initramfs /dev/.initramfs
-	fi
-	umount /run
-fi
-
 validate_init() {
 	checktarget="${1}"
 
@@ -292,11 +261,42 @@ if [ ! -x "${rootmnt}/sbin/init" ]; then
 			fi
 		done
 	fi
+fi
 
-	# No init on rootmount
-	if ! validate_init "${init}" ; then
-		panic "No init found. Try passing init= bootarg."
+if read_fstab_entry /usr; then
+	log_begin_msg "Mounting /usr file system"
+	mountfs /usr
+	log_end_msg
+fi
+
+# Mount cleanup
+mount_bottom
+nfs_bottom
+local_bottom
+
+maybe_break bottom
+[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-bottom"
+run_scripts /scripts/init-bottom
+[ "$quiet" != "y" ] && log_end_msg
+
+# Preserve information on old systems without /run on the rootfs
+if [ -d ${rootmnt}/run ]; then
+	mount -n -o move /run ${rootmnt}/run
+else
+	# The initramfs udev database must be migrated:
+	if [ -d /run/udev ] && [ ! -d /dev/.udev ]; then
+		mv /run/udev /dev/.udev
 	fi
+	# The initramfs debug info must be migrated:
+	if [ -d /run/initramfs ] && [ ! -d /dev/.initramfs ]; then
+		mv /run/initramfs /dev/.initramfs
+	fi
+	umount /run
+fi
+
+# No init on rootmount
+if ! validate_init "${init}" ; then
+	panic "No init found. Try passing init= bootarg."
 fi
 
 maybe_break init
