@@ -258,7 +258,8 @@ if ! validate_init "$init"; then
 	done
 fi
 
-if read_fstab_entry /usr; then
+# Mount /usr only if init is systemd (after reading symlink)
+if [ "${checktarget##*/}" = systemd ] && read_fstab_entry /usr; then
 	log_begin_msg "Mounting /usr file system"
 	mountfs /usr
 	log_end_msg
