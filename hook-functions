@@ -254,17 +254,6 @@ dep_add_modules()
 			&& break; done < /proc/mounts)"
 	fi
 
-	# recheck root device
-	if [ -z "$root" ]; then
-		echo "mkinitramfs: failed to determine root device" >&2
-		echo "mkinitramfs: workaround is MODULES=most, check:" >&2
-		echo "grep -r MODULES /etc/initramfs-tools/" >&2
-		echo "" >&2
-		echo "Error please report bug on initramfs-tools" >&2
-		echo "Include the output of 'mount' and 'cat /proc/mounts'" >&2
-		exit 1
-	fi
-
 	# handle ubifs and return since ubifs root is a char device but
 	# most of the commands below only work with block devices.
 	if [ "${FSTYPE}" = "ubifs" ]; then
@@ -275,7 +264,17 @@ dep_add_modules()
 	if [ "${root}" = "/dev/root" ] ; then
 		root="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${root}) 2>/dev/null
 	fi
-	root="$(readlink -f ${root})"
+
+	# recheck root device
+	if [ -z "$root" ] || ! root="$(readlink -f ${root})" || ! [ -b "$root" ]; then
+		echo "mkinitramfs: failed to determine root device" >&2
+		echo "mkinitramfs: workaround is MODULES=most, check:" >&2
+		echo "grep -r MODULES /etc/initramfs-tools/" >&2
+		echo "" >&2
+		echo "Error please report bug on initramfs-tools" >&2
+		echo "Include the output of 'mount' and 'cat /proc/mounts'" >&2
+		exit 1
+	fi
 
 	# do not trust mount, check superblock
 	eval "$(/usr/lib/klibc/bin/fstype ${root})"
