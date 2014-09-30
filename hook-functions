@@ -199,8 +199,9 @@ sys_walk_mod_add()
 	local driver_path module
 	device_path="$1"
 
+	sys_walk_modalias "${device_path}"
+
 	while [ "${device_path}" != "/sys" ]; do
-		sys_walk_modalias ${device_path}
 		driver_path="$(readlink -f ${device_path}/driver/module)"
 		if [ -e "$driver_path" ]; then
 			module="$(basename $(readlink -f $driver_path))"
@@ -216,16 +217,17 @@ sys_walk_mod_add()
 sys_walk_modalias()
 {
 	local device_path modalias
+	device_path="$1"
 
-	device_path="$(dirname "${1}")"
-	device_path="$(dirname "${device_path}")"
-	if [ -e "${device_path}/modalias" ]; then
-		modalias=$(cat "${device_path}/modalias")
-	fi
-
-	if [ -n "${modalias}" ]; then
-		force_load "${modalias}"
-	fi
+	while [ "${device_path}" != "/sys" ]; do
+		if [ -e "${device_path}/modalias" ]; then
+			modalias=$(cat "${device_path}/modalias")
+			if [ -n "${modalias}" ]; then
+				force_load "${modalias}"
+			fi
+		fi
+		device_path="$(dirname ${device_path})"
+	done
 }
 
 # find and only copy root relevant modules
@@ -254,17 +256,6 @@ dep_add_modules()
 			&& break; done < /proc/mounts)"
 	fi
 
-	# recheck root device
-	if [ -z "$root" ]; then
-		echo "mkinitramfs: failed to determine root device" >&2
-		echo "mkinitramfs: workaround is MODULES=most, check:" >&2
-		echo "grep -r MODULES /etc/initramfs-tools/" >&2
-		echo "" >&2
-		echo "Error please report bug on initramfs-tools" >&2
-		echo "Include the output of 'mount' and 'cat /proc/mounts'" >&2
-		exit 1
-	fi
-
 	# handle ubifs and return since ubifs root is a char device but
 	# most of the commands below only work with block devices.
 	if [ "${FSTYPE}" = "ubifs" ]; then
@@ -273,9 +264,41 @@ dep_add_modules()
 	fi
 
 	if [ "${root}" = "/dev/root" ] ; then
-		root="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${root}) 2>/dev/null
+		if [ -b "${root}" ]; then
+			# Match it to the canonical device name by UUID
+			root="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${root}) 2>/dev/null
+		else
+			# Does not exist in our namespace, so look at the
+			# kernel command line
+			root=
+			for arg in $(cat /proc/cmdline); do
+				case "$arg" in
+				root=*)
+					root="${arg#root=}"
+					if [ "${root#/dev/}" = "$root" ]; then
+						root="/dev/$root"
+					fi
+					;;
+				--)
+					break
+					;;
+				*)
+					;;
+				esac
+			done
+		fi
 	fi
-	root="$(readlink -f ${root})"
+
+	# recheck root device
+	if [ -z "$root" ] || ! root="$(readlink -f ${root})" || ! [ -b "$root" ]; then
+		echo "mkinitramfs: failed to determine root device" >&2
+		echo "mkinitramfs: workaround is MODULES=most, check:" >&2
+		echo "grep -r MODULES /etc/initramfs-tools/" >&2
+		echo "" >&2
+		echo "Error please report bug on initramfs-tools" >&2
+		echo "Include the output of 'mount' and 'cat /proc/mounts'" >&2
+		exit 1
+	fi
 
 	# do not trust mount, check superblock
 	eval "$(/usr/lib/klibc/bin/fstype ${root})"
