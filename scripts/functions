@@ -43,7 +43,7 @@ panic()
 		echo "Rebooting automatically due to panic= boot argument"
 		sleep ${panic}
 		reboot
-		return
+		exit  # in case reboot fails, force kernel panic
 	fi
 	modprobe -v i8042 || true
 	modprobe -v atkbd || true
