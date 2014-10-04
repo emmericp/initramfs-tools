@@ -1,3 +1,43 @@
+initramfs-tools (0.118) unstable; urgency=medium
+
+  [ Ben Hutchings ]
+  * [70e371f] manual_add_modules: Set the kernel version when checking module
+    firmware deps
+  * [fdec1d3] lsinitramfs: Move the decompress | cpio pipeline into a function
+  * [d5f4cd6] lsinitramfs: Parse and list files that include early microcode.
+    Thanks to Brett Parker and Olivier Berger. (Closes: #717805)
+  * [f868c43] lsinitramfs: Include -l option in usage message
+  * [f4c512e] Add more sanity checks on root device name in dep_add_modules
+  * [d58a65b] Support MODULES=dep usage when root was mounted from hidden
+    /dev/root (Closes: #689942)
+  * [ebf275a] Check for root device's module dependencies at all levels of
+    device hierarchy
+  * [52abbfb] init: Decide what the real init is immediately before mounting
+    /usr
+  * [25aa264] init: Fix validation of the real init program
+  * [66a141e] init: Resolve both absolute and relative symlinks in
+    validate_init
+  * [042d7a3] init: Only mount /usr if the real init is systemd
+    (Closes: #763157)
+  * [d641934] debian/control: Add Breaks: systemd-sysv (<< 186)
+  * [305489e] debian/control: Conflict with linux-initramfs-tool
+    (Closes: #729800)
+  * [fd83e8b] panic: Do not return if reboot fails
+  * [c0579f5] hooks/fsck: Add hwclock, related configuration files and udev
+    rules (Closes: #763777)
+  * [a7bd088] debian/control: Add versioned Depends on util-linux to avoid
+    adjusting clock twice
+  * [6ae39eb] debian/control: Fix minimum version of util-linux
+  * [67e53ea] init: Set and export PATH before running any external commands
+  * [8ebce59] Require new klibc-utils or busybox, to get 'readlink -f' and
+    'mount -o defaults' (Closes: #762870)
+
+  [ nandhp ]
+  * [782d166] Fix handling of root filesystem with LABEL=/
+    (/dev/disk/by-label/\x2f) (Closes: #756457)
+
+ -- Ben Hutchings <ben@decadent.org.uk>  Sat, 04 Oct 2014 17:19:10 +0100
+
 initramfs-tools (0.117) unstable; urgency=medium
 
   [ Roger Leigh ]
