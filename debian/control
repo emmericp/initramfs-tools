@@ -12,7 +12,7 @@ Package: initramfs-tools
 Architecture: all
 Multi-Arch: foreign
 Recommends: busybox (>= 1:1.01-3) | busybox-initramfs | busybox-static
-Depends: klibc-utils (>= 2.0-1~), cpio, kmod | module-init-tools, udev, ${misc:Depends}, util-linux (>= 2.20.1-5.10)
+Depends: klibc-utils (>= 2.0-1~), cpio, kmod | module-init-tools, udev, ${misc:Depends}, util-linux (>= 2.20.1-5.11~)
 Suggests: bash-completion
 Provides: linux-initramfs-tool
 Conflicts: linux-initramfs-tool, usplash (<< 0.5.50)
