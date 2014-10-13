@@ -577,6 +577,76 @@ EOF
 
 }
 
+# Find the source for a script file.  This is needed to work around
+# temporary directories mounted with the noexec option.  The source
+# will be on / or /usr which must be executable.
+get_source()
+{
+	if [ -z "$scriptdir" ]; then
+		echo "${initdir}/$1"
+	elif [ -f "${CONFDIR}${scriptdir}/$1" ]; then
+		echo "${CONFDIR}${scriptdir}/$1"
+	else
+		echo "/usr/share/initramfs-tools${scriptdir}/$1"
+	fi
+}
+
+set_initlist()
+{
+	unset initlist
+	for si_x in ${initdir}/*; do
+		# skip empty dirs without warning
+		[ "${si_x}" = "${initdir}/*" ] && return
+
+		# only allow variable name chars
+		case ${si_x#${initdir}/} in
+		*[![:alnum:]\._-]*)
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: not alphanumeric or '_' file" >&2
+			continue
+			;;
+		esac
+
+		# skip directories
+		if [ -d ${si_x} ]; then
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: a directory" >&2
+			continue
+		fi
+
+		si_x="$(get_source "${si_x#${initdir}/}")"
+
+		# skip non executable scripts
+		if [ ! -x ${si_x} ]; then
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: not executable" >&2
+			continue
+		fi
+
+		# skip bad syntax
+		if ! sh -n ${si_x} ; then
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: bad syntax" >&2
+			continue
+		fi
+
+		initlist="${initlist:-} ${si_x##*/}"
+	done
+}
+
+get_prereq_pairs()
+{
+	set_initlist
+	for gp_x in ${initlist:-}; do
+		echo ${gp_x} ${gp_x}
+		gp_src="$(get_source $gp_x)"
+		prereqs=$("${gp_src}" prereqs)
+		for prereq in ${prereqs}; do
+			echo ${prereq} ${gp_x}
+		done
+	done
+}
+
 # cache boot scripts order
 cache_run_scripts()
 {
@@ -591,6 +661,30 @@ cache_run_scripts()
 		echo "${scriptdir}/${crs_x}" >> ${initdir}/ORDER
 		echo "[ -e /conf/param.conf ] && . /conf/param.conf" >> ${initdir}/ORDER
 	done
+}
+
+call_scripts()
+{
+	set -e
+	for cs_x in ${runlist}; do
+		[ -f ${initdir}/${cs_x} ] || continue
+		# mkinitramfs verbose output
+		if [ "${verbose}" = "y" ]; then
+			echo "Calling hook ${cs_x}"
+		fi
+		${initdir}/${cs_x} && ec=$? || ec=$?
+		# allow hooks to abort build:
+		if [ "$ec" -ne 0 ]; then
+			echo "E: ${initdir}/${cs_x} failed with return $ec."
+			# only errexit on mkinitramfs
+			[ -n "${version}" ] && exit $ec
+		fi
+		# allow boot scripts to modify exported boot parameters
+		if [ -e /conf/param.conf ]; then
+			. /conf/param.conf
+		fi
+	done
+	set +e
 }
 
 run_scripts()
