@@ -68,6 +68,20 @@ render()
 	eval "echo -n \${$@}"
 }
 
+# Find the source for a script file.  This is needed to work around
+# temporary directories mounted with the noexec option.  The source
+# will be on / or /usr which must be executable.
+get_source()
+{
+	if [ -z "$scriptdir" ]; then
+		echo "${initdir}/$1"
+	elif [ -f "${CONFDIR}${scriptdir}/$1" ]; then
+		echo "${CONFDIR}${scriptdir}/$1"
+	else
+		echo "/usr/share/initramfs-tools${scriptdir}/$1"
+	fi
+}
+
 set_initlist()
 {
 	unset initlist
@@ -84,17 +98,19 @@ set_initlist()
 			;;
 		esac
 
-		# skip non executable scripts
-		if [ ! -x ${si_x} ]; then
-			[ "${verbose}" = "y" ] \
-			&& echo "$si_x ignored: not executable" >&2
-			continue
-		fi
-
 		# skip directories
 		if [ -d ${si_x} ]; then
 			[ "${verbose}" = "y" ] \
 			&& echo "$si_x ignored: a directory" >&2
+			continue
+		fi
+
+		si_x="$(get_source "${si_x#${initdir}/}")"
+
+		# skip non executable scripts
+		if [ ! -x ${si_x} ]; then
+			[ "${verbose}" = "y" ] \
+			&& echo "$si_x ignored: not executable" >&2
 			continue
 		fi
 
@@ -105,93 +121,7 @@ set_initlist()
 			continue
 		fi
 
-		initlist="${initlist:-} ${si_x#${initdir}/}"
-	done
-}
-
-reduce_satisfied()
-{
-	deplist="$(render array_${1})"
-	unset tmpdeplist
-	for rs_y in ${deplist}; do
-		# only allow variable name chars
-		case ${rs_y} in
-		*[![:alnum:]\._-]*)
-			continue
-			;;
-		esac
-		# skip non executable scripts
-		[ ! -x ${initdir}/${rs_y} ] && continue
-		# skip directories
-		[ -d ${initdir}/${rs_y} ] && continue
-		# skip bad syntax
-		sh -n ${initdir}/${rs_y} || continue
-
-		tmpdeplist="${tmpdeplist} ${rs_y}"
-	done
-	deplist=${tmpdeplist}
-	for rs_x in ${runlist}; do
-		pop_list_item ${rs_x} ${deplist}
-		deplist=${tmppop}
-	done
-	eval array_${1}=\"${deplist}\"
-}
-
-get_prereqs()
-{
-	set_initlist
-	for gp_x in ${initlist}; do
-		tmp=$(${initdir}/${gp_x} prereqs)
-		eval array_${gp_x}=\"${tmp}\"
-	done
-}
-
-count_unsatisfied()
-{
-	set -- ${@}
-	return ${#}
-}
-
-# Removes $1 from initlist
-pop_list_item()
-{
-	item=${1}
-	shift
-	set -- ${@}
-	unset tmppop
-	# Iterate
-	for pop in ${@}; do
-		if [ ${pop} = ${item} ]; then
-			continue
-		fi
-		tmppop="${tmppop} ${pop}"
-	done
-
-}
-
-# This function generates the runlist, so we clear it first.
-reduce_prereqs()
-{
-	unset runlist
-	set -- ${initlist}
-	i=$#
-	# Loop until there's no more in the queue to loop through
-	while [ ${i} -ne 0 ]; do
-		oldi=${i}
-		for rp_x in ${initlist}; do
-			reduce_satisfied ${rp_x}
-			count_unsatisfied $(render array_${rp_x})
-			cnt=${?}
-			if [ ${cnt} -eq 0 ]; then
-				runlist="${runlist} ${rp_x}"
-				pop_list_item ${rp_x} ${initlist}
-				initlist=${tmppop}
-				i=$((${i} - 1))
-			fi
-		done
-		if [ ${i} -eq ${oldi} ]; then
-			panic "PANIC: Circular dependancy.  Exiting."
-		fi
+		initlist="${initlist:-} ${si_x##*/}"
 	done
 }
 
@@ -200,7 +130,8 @@ get_prereq_pairs()
 	set_initlist
 	for gp_x in ${initlist:-}; do
 		echo ${gp_x} ${gp_x}
-		prereqs=$(${initdir}/${gp_x} prereqs)
+		gp_src="$(get_source $gp_x)"
+		prereqs=$("${gp_src}" prereqs)
 		for prereq in ${prereqs}; do
 			echo ${prereq} ${gp_x}
 		done
@@ -231,21 +162,13 @@ call_scripts()
 	set +e
 }
 
+# For boot time only; this is overridden at build time in hook-functions
 run_scripts()
 {
 	initdir=${1}
 	[ ! -d ${initdir} ] && return
 
-	if [ -f ${initdir}/ORDER ]; then
-		. ${initdir}/ORDER
-	elif command -v tsort >/dev/null 2>&1; then
-		runlist=$(get_prereq_pairs | tsort)
-		call_scripts ${2:-}
-	else
-		get_prereqs
-		reduce_prereqs
-		call_scripts
-	fi
+	. ${initdir}/ORDER
 }
 
 # Load custom modules first

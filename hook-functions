@@ -592,3 +592,13 @@ cache_run_scripts()
 		echo "[ -e /conf/param.conf ] && . /conf/param.conf" >> ${initdir}/ORDER
 	done
 }
+
+run_scripts()
+{
+	scriptdir=${2:-}
+	initdir=${1}
+	[ ! -d ${initdir} ] && return
+
+	runlist=$(get_prereq_pairs | tsort)
+	call_scripts $scriptdir
+}
