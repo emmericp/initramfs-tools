@@ -167,13 +167,6 @@ fi
 DESTDIR="$(mktemp -d ${TMPDIR:-/var/tmp}/mkinitramfs_XXXXXX)" || exit 1
 chmod 755 "${DESTDIR}"
 
-# do not execute cache_run_scripts() if mounted with noexec
-NOEXEC=""
-fs=$(df -P $DESTDIR | tail -1 | awk '{print $6}')
-if [ -n "$fs" ] && mount | grep -q "on $fs .*noexec" ; then
-	NOEXEC=1
-fi
-
 __TMPCPIOGZ="$(mktemp ${TMPDIR:-/var/tmp}/mkinitramfs-OL_XXXXXX)" || exit 1
 __TMPEARLYCPIO="$(mktemp ${TMPDIR:-/var/tmp}/mkinitramfs-FW_XXXXXX)" || exit 1
 
@@ -297,13 +290,9 @@ run_scripts /usr/share/initramfs-tools/hooks
 run_scripts "${CONFDIR}"/hooks
 
 # cache boot run order
-if [ -n "$NOEXEC" ]; then
-	echo "W: TMPDIR is mounted noexec, will not cache run scripts."
-else
-	for b in $(cd "${DESTDIR}/scripts" && find . -mindepth 1 -type d); do
-		cache_run_scripts "${DESTDIR}" "/scripts/${b#./}"
-	done
-fi
+for b in $(cd "${DESTDIR}/scripts" && find . -mindepth 1 -type d); do
+	cache_run_scripts "${DESTDIR}" "/scripts/${b#./}"
+done
 
 # generate module deps
 depmod -a -b "${DESTDIR}" ${version}
