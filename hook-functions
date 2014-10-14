@@ -230,6 +230,32 @@ sys_walk_modalias()
 	done
 }
 
+# Copy all loaded or built-in modules matching the given pattern.
+# Pattern mustn't include directory or '.ko' suffix but should use
+# '[-_]' to allow for differences in naming between /sys/module and
+# modules.builtin.
+add_loaded_modules()
+{
+	local pattern="$1"
+	local module
+	local builtin=/lib/modules/$(uname -r)/modules.builtin
+
+	for module in /sys/module/$pattern; do
+		if [ -d "$module" ]; then
+			manual_add_modules $(basename $module)
+		fi
+	done
+	if [ -f $builtin ]; then
+		while read module; do
+			case "$module" in
+			*/$pattern.ko)
+				manual_add_modules $(basename $module .ko)
+				;;
+			esac
+		done < $builtin
+	fi
+}
+
 # find and only copy root relevant modules
 dep_add_modules()
 {
@@ -417,6 +443,20 @@ dep_add_modules()
 	root_dev_path=$(readlink -f /sys/block/${block}/device)
 	sys_walk_mod_add ${root_dev_path}
 
+	# sys walk some important device classes
+	for class in gpio phy regulator; do
+		for device in /sys/class/$class/*; do
+			device="$(readlink -f "$device")" \
+				&& sys_walk_mod_add "$device"
+		done
+	done
+
+	# clk, USB-PHY and pinctrl devices are outside the device model (!) so
+	# match loaded modules by name
+	add_loaded_modules 'clk[-_]*'
+	add_loaded_modules 'phy[-_]*'
+	add_loaded_modules 'pinctrl[-_]*'
+
 	# catch old-style IDE
 	if [ -e /sys/bus/ide/devices/ ]; then
 		sys_walk_modalias ${root_dev_path}
@@ -489,6 +529,14 @@ auto_add_modules()
 				hid-speedlink.ko hid-tivo.ko hid-twinhan.ko \
 				hid-uclogic.ko hid-wacom.ko hid-waltop.ko \
 				hid-wiimote.ko hid-zydacron.ko
+
+			# Any of these might be needed by other drivers
+			copy_modules_dir kernel/drivers/clk
+			copy_modules_dir kernel/drivers/gpio
+			copy_modules_dir kernel/drivers/phy
+			copy_modules_dir kernel/drivers/pinctrl
+			copy_modules_dir kernel/drivers/regulator
+			copy_modules_dir kernel/drivers/usb/phy
 		;;
 		net)
 			copy_modules_dir kernel/drivers/net \
