@@ -45,12 +45,12 @@ usage()
 Usage: ${0} [OPTION]...
 
 Options:
- -k [version]	Specify kernel version or 'all'
+ -k version	Specify kernel version or 'all'
  -c		Create a new initramfs
  -u		Update an existing initramfs
  -d		Remove an existing initramfs
  -t		Take over a custom initramfs with this one
- -b		Set alternate boot directory
+ -b directory	Set alternate boot directory
  -v		Be verbose
  -h		This message
 
