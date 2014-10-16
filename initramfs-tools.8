@@ -558,10 +558,7 @@ It is easy to check the generated initramfs for its content. One may need
 to double-check if it contains the relevant binaries, libs or modules:
 .RS
 .nf
-mkdir tmp/initramfs
-cd tmp/initramfs
-gunzip \-c /boot/initrd.img\-2.6.18\-1\-686 | \\
-cpio \-i \-d \-H newc \-\-no\-absolute\-filenames
+lsinitramfs /boot/initrd.img\-3.16\-3\-amd64
 .fi
 .RE
 
