@@ -555,6 +555,17 @@ is the path where root gets mounted usually /root.
 indicates that a debug log is captured for further investigation.
 
 
+.SH KERNEL HOOKS
+initramfs-tools includes hook scripts that are called by kernel
+packages on installation and removal, so that an initramfs is
+automatically created, updated or deleted as necessary.  The hook
+scripts do nothing if the environment variable \fBINITRD\fR is
+set to \fBNo\fR.  This will be the case for kernel packages
+built with \fBmake deb-pkg\fR and with \fBCONFIG_BLK_DEV_INITRD\fR
+not set in the kernel config, or built with \fBmake-kpkg\fR and not
+using the \fB--initrd\fR option.
+
+
 .SH DEBUG
 It is easy to check the generated initramfs for its content. One may need
 to double-check if it contains the relevant binaries, libs or modules:
