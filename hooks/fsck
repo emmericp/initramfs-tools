@@ -95,18 +95,14 @@ copy_exec /sbin/fsck
 copy_exec /sbin/logsave
 copy_exec /sbin/sulogin
 
-# fsck may spuriously fail or warn if the system time is not yet correct
-if [ -x /lib/udev/hwclock-set ]; then
-	copy_exec /lib/udev/hwclock-set
-	copy_exec /sbin/hwclock
-	for f in /etc/adjtime /etc/default/hwclock /etc/default/rcS \
-	         /etc/localtime /etc/udev/rules.d/*-hwclock.rules \
-		 /lib/udev/rules.d/*-hwclock.rules; do
-		if [ -f "$f" ]; then
-			copy_exec "$f"
-		fi
-	done
-fi
+# e2fsck may fail or warn if the system time is not yet correct, which
+# will happen if the RTC driver is modular or the RTC is set to local
+# time.  Disable this behaviour.  (No other fsck does this, apparently.)
+mkdir -p "${DESTDIR}/etc"
+cat >"${DESTDIR}/etc/e2fsck.conf" <<EOF
+[options]
+broken_system_clock=1
+EOF
 
 for type in $(get_fstypes | sort | uniq); do
 	if [ "$type" = 'auto' ] ; then
