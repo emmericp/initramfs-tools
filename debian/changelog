@@ -1,3 +1,9 @@
+initramfs-tools (0.53c) unstable; urgency=low
+
+  * update-initramfs: Really reset takeover to zero.
+
+ -- maximilian attems <maks@sternwelten.at>  Mon,  6 Mar 2006 07:59:34 +0100
+
 initramfs-tools (0.53b) unstable; urgency=low
 
   * scripts/init-premount/udev_helper: Renamed from udev-helper.
