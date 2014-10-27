@@ -1,3 +1,17 @@
+initramfs-tools (0.85b) unstable; urgency=medium
+
+  * mkinitramfs: Test for ${outfile} before touching anything. (closes: 381677)
+
+  * update-initramfs.conf, update-initramfs: Allow to disable backup strategy.
+    While we are it fix logic of backup_booted_initramfs(). (closes: 397787)
+    urgency medium.
+
+  * scripts/init-top/framebuffer: Fix regression of /dev/fb0 creation,
+    modprobe fb before creating device. Thanks to Otavio Salvador 
+    <otavio@debian.org> for patch.
+
+ -- maximilian attems <maks@sternwelten.at>  Tue, 14 Nov 2006 08:06:40 +0100
+
 initramfs-tools (0.85a) unstable; urgency=high
 
   * On first time run backup_booted_initramfs() has nothing to back up.
