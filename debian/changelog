@@ -1,3 +1,10 @@
+initramfs-tools (0.53b) unstable; urgency=low
+
+  * scripts/init-premount/udev_helper: Renamed from udev-helper.
+    Thanks to Tollef Fog Heen <tfheen@err.no> (closes: #355235)
+
+ -- maximilian attems <maks@sternwelten.at>  Sat,  4 Mar 2006 15:26:13 +0100
+
 initramfs-tools (0.53) unstable; urgency=high
 
   * update-initramfs: set_current_version needs to check against
