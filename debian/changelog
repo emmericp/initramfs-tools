@@ -1,4 +1,4 @@
-initramfs-tools (0.57) unstable; urgency=low
+initramfs-tools (0.57b) unstable; urgency=low
 
   * mkinitramfs, update-initramfs, hook-functions:
     On verbose mode show, which modules gets added to the initramfs.
@@ -7,7 +7,7 @@ initramfs-tools (0.57) unstable; urgency=low
     to Petter Reinholdtsen <pere@hungry.com>. (closes: #357980)
 
   * initramfs-tools.8: Document that `-' is not allowed to be used in a script
-    filename - the filenames get used as shell variable.  (closes: #355235)
+    filename - the filenames get used as shell variable.  (closes: #344639)
 
   * mkinitramfs: Don't exit succesfully in a case of a full fs. Leaves the
     linux-image unconfigured. Thanks martin f krafft <madduck@debian.org>
