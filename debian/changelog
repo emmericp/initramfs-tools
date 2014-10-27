@@ -1,8 +1,8 @@
 initramfs-tools (0.39) unstable; urgency=medium
 
-   * Setting urgency to medium to get this into testing.  This
-     will make life easier for d-i.
-
+  * Setting urgency to medium to get this into testing.  This
+    will make life easier for d-i.
+  
   * Revert the mklibs-small usage patch - reduces needed dependencies:
     hook-fuctions: Readds copy_exec.
     mkinitramfs, hooks/{evms,lvm,md}: Use copy_exec.
