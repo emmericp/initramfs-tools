@@ -1,3 +1,11 @@
+initramfs-tools (0.72) unstable; urgency=low
+
+  * Add scripts/init-top/framebuffer, reduces ubuntu diff even more.
+    fb is only activated with splash or vga boot param.
+  * Upload sponsored by Petter Reinholdtsen.
+
+ -- maximilian attems <maks@sternwelten.at>  Tue, 25 Jul 2006 09:11:18 +0200
+
 initramfs-tools (0.71b) unstable; urgency=low
 
   * This time caught on bzr dotfiles, removed.
