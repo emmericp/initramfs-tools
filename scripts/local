@@ -147,6 +147,8 @@ local_mount_fs()
 	read_fstab_entry "$1"
 	MNT_FSNAME=$(resolve_device "$MNT_FSNAME")
 
+	run_scripts /scripts/local-extra "$MNT_FSNAME"
+
 	local_device_setup "$MNT_FSNAME" "$1"
 
 	local_premount
