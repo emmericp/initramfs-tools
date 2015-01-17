@@ -3,6 +3,9 @@ initramfs-tools (0.119) UNRELEASED; urgency=medium
   * The initramfs will now run fsck on the root filesystem before
     mounting it.  If the chosen init program is systemd and there is a
     separate /usr filesystem, it will also fsck and mount /usr.
+  * If the /usr filesystem is on a RAID device and the INITRDSTART setting
+    in /etc/default/mdadm is not 'all', you will need to change it to
+    include that device.
 
  -- Ben Hutchings <ben@decadent.org.uk>  Sat, 17 Jan 2015 16:56:56 +0000
 
