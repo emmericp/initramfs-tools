@@ -332,7 +332,7 @@ resolve_device() {
 # Check a file system.
 # $1=device
 # $2=mountpoint (for diagnostics only)
-checkfs()
+_checkfs_once()
 {
 	DEV="$1"
 	NAME="$2"
@@ -392,32 +392,21 @@ checkfs()
 		log_warning_msg "File system check was interrupted by user"
 	elif [ $((FSCKCODE & 4)) -eq 4 ]
 	then
-		# Surprise! Re-directing from a HERE document (as in "cat << EOF")
-		# does not work because the fs is currently read-only.
-		log_failure_msg "An automatic file system check (fsck) of the $NAME filesystem failed.
-A manual fsck must be performed, then the system restarted.
-The fsck should be performed in maintenance mode with the
-$NAME filesystem mounted in read-only mode."
-		log_warning_msg "The $NAME filesystem is currently mounted in read-only mode.
-A maintenance shell will now be started.
-After performing system maintenance, press CONTROL-D
-to terminate the maintenance shell and restart the system."
-		# Start a single user shell on the console
-		if ! sulogin $CONSOLE
-		then
-			log_failure_msg "Attempt to start maintenance shell failed.
-Will restart in 5 seconds."
-			sleep 5
-		fi
-		if [ "${verbose}" = "y" ] ; then
-			log_begin_msg "Will now restart"
-		fi
-		reboot
+		log_failure_msg "File system check of the $NAME filesystem failed"
+		return 1
 	elif [ "$FSCKCODE" -gt 1 ]
 	then
 		log_warning_msg "File system check failed but did not detect errors"
 		sleep 5
 	fi
+	return 0
+}
+
+checkfs()
+{
+	while ! _checkfs_once "$@"; do
+		panic "The $2 filesystem on $1 requires a manual fsck"
+	done
 }
 
 # Mount a file system.  We parse the information from the fstab.  This
