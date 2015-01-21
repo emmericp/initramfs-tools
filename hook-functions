@@ -506,7 +506,7 @@ auto_add_modules()
 		case "$arg" in
 		base)
 			modules="$modules ehci-pci ehci-orion ehci-hcd ohci-hcd ohci-pci uhci-hcd usbhid"
-			modules="$modules xhci xhci-hcd"
+			modules="$modules xhci xhci-pci xhci-hcd"
 			modules="$modules btrfs ext2 ext3 ext4 ext4dev "
 			modules="$modules isofs jfs reiserfs udf xfs"
 			modules="$modules nfs nfsv2 nfsv3 nfsv4"
