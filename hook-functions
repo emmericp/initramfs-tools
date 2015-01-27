@@ -256,11 +256,13 @@ add_loaded_modules()
 	fi
 }
 
-# find and only copy root relevant modules
-dep_add_modules()
+# find and only copy modules relevant to a mountpoint
+dep_add_modules_mount()
 {
-	local block minor root FSTYPE root_dev_path
+	local dir block minor dev_node FSTYPE dev_sys_path
 	local modules=
+
+	dir="$1"
 
 	# require mounted sysfs
 	if [ ! -d /sys/devices/ ]; then
@@ -268,41 +270,47 @@ dep_add_modules()
 		exit 1
 	fi
 
-	# findout root block device + fstype
+	# find out block device + fstype
 	eval "$( mount | while read -r dev foo mp foo fs opts rest ; do \
-        	[ "$mp" = "/" ] && [ "$fs" != "rootfs" ] \
-		&& printf "root='%s'\nFSTYPE='%s'" "$dev" "$fs" \
+		[ "$mp" = "$dir" ] && [ "$fs" != "rootfs" ] \
+		&& printf "dev_node='%s'\nFSTYPE='%s'" "$dev" "$fs" \
 		&& break; done)"
 
 	# On failure fallback to /proc/mounts if readable
-	if [ -z "$root" ] && [ -r /proc/mounts ]; then
+	if [ -z "$dev_node" ] && [ -r /proc/mounts ]; then
 		eval "$(while read dev mp fs opts rest ; do \
-			[ "$mp" = "/" ] && [ "$fs" != "rootfs" ] \
-			&& printf "root=$dev\nFSTYPE=$fs"\
+			[ "$mp" = "$dir" ] && [ "$fs" != "rootfs" ] \
+			&& printf "dev_node=$dev\nFSTYPE=$fs"\
 			&& break; done < /proc/mounts)"
 	fi
 
-	# handle ubifs and return since ubifs root is a char device but
-	# most of the commands below only work with block devices.
+	# Only the root mountpoint has to exist; do nothing if any other
+	# directory is not a mountpoint.
+	if [ "$dir" != / ] && [ -z "$dev_node" ]; then
+		return
+	fi
+
+	# handle ubifs and return since ubifs is mounted on char devices
+	# but most of the commands below only work with block devices.
 	if [ "${FSTYPE}" = "ubifs" ]; then
 		manual_add_modules "${FSTYPE}"
 		return
 	fi
 
-	if [ "${root}" = "/dev/root" ] ; then
-		if [ -b "${root}" ]; then
+	if [ "$dir" = / ] && [ "${dev_node}" = "/dev/root" ] ; then
+		if [ -b "${dev_node}" ]; then
 			# Match it to the canonical device name by UUID
-			root="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${root}) 2>/dev/null
+			dev_node="/dev/disk/by-uuid/"$(blkid -o value -s UUID ${dev_node}) 2>/dev/null
 		else
 			# Does not exist in our namespace, so look at the
 			# kernel command line
-			root=
+			dev_node=
 			for arg in $(cat /proc/cmdline); do
 				case "$arg" in
 				root=*)
-					root="${arg#root=}"
-					if [ "${root#/dev/}" = "$root" ]; then
-						root="/dev/$root"
+					dev_node="${arg#root=}"
+					if [ "${dev_node#/dev/}" = "$dev_node" ]; then
+						dev_node="/dev/$dev_node"
 					fi
 					;;
 				--)
@@ -315,9 +323,10 @@ dep_add_modules()
 		fi
 	fi
 
-	# recheck root device
-	if [ -z "$root" ] || ! root="$(readlink -f ${root})" || ! [ -b "$root" ]; then
-		echo "mkinitramfs: failed to determine root device" >&2
+	# recheck device
+	if [ -z "$dev_node" ] || ! dev_node="$(readlink -f ${dev_node})" \
+		|| ! [ -b "$dev_node" ]; then
+		echo "mkinitramfs: failed to determine device for $dir" >&2
 		echo "mkinitramfs: workaround is MODULES=most, check:" >&2
 		echo "grep -r MODULES /etc/initramfs-tools/" >&2
 		echo "" >&2
@@ -327,26 +336,26 @@ dep_add_modules()
 	fi
 
 	# do not trust mount, check superblock
-	eval "$(/usr/lib/klibc/bin/fstype ${root})"
+	eval "$(/usr/lib/klibc/bin/fstype ${dev_node})"
 
-	# check that fstype rootfs recognition
+	# check that fstype fs recognition
 	if [ "${FSTYPE}" = "unknown" ]; then
-		FSTYPE=$(blkid -o value -s TYPE "${root}")
+		FSTYPE=$(blkid -o value -s TYPE "${dev_node}")
 		if [  -z "${FSTYPE}" ]; then
-			echo "mkinitramfs: unknown fstype on root ${root}" >&2
+			echo "mkinitramfs: unknown fstype on device ${dev_node}" >&2
 			echo "mkinitramfs: workaround is MODULES=most" >&2
 			echo "Error please report bug on initramfs-tools" >&2
 			exit 1
 		fi
 	fi
 
-	# Add rootfs
+	# Add filesystem
 	modules="$modules ${FSTYPE}"
 
-	# lvm or luks root
-	if [ "${root#/dev/mapper/}" != "${root}" ] \
-		|| [ "${root#/dev/dm-}" != "${root}" ]; then
-		minor=$((0x$(stat --format "%T" ${root}) % 256))
+	# lvm or luks device
+	if [ "${dev_node#/dev/mapper/}" != "${dev_node}" ] \
+		|| [ "${dev_node#/dev/dm-}" != "${dev_node}" ]; then
+		minor=$((0x$(stat --format "%T" ${dev_node}) % 256))
 		block=$(ls -1 /sys/block/dm-${minor}/slaves | head -n 1)
 		# lvm on luks or luks on lvm, possibly lvm snapshots
 		while [ "${block#dm-}" != "${block}" ]; do
@@ -363,85 +372,85 @@ dep_add_modules()
 		else
 			block=${block%%[0-9]*}
 		fi
-	# md root new naming scheme /dev/md/X
-	elif [ "${root#/dev/md/}" != "${root}" ]; then
-		root=${root#/dev/md/}
+	# md device new naming scheme /dev/md/X
+	elif [ "${dev_node#/dev/md/}" != "${dev_node}" ]; then
+		dev_node=${dev_node#/dev/md/}
 		# strip partion number
-		root=${root%%p[0-9]*}
+		dev_node=${dev_node%%p[0-9]*}
 		# drop the partition number only for sdX and hdX devices
 		# and keep it for other devices like loop#, dm-# devices
-		block=$(sed -ne 's/multipath/[/' -e 's/linear/[/' -e 's/raid[0-9][0-9]*/[/' -e 's/\([hs]d[a-z][a-z]*\)[0-9][0-9]*/\1/g' -e '/^md'$root' :/s/^[^[]*\[ \([^\[]*\)\[.*$/\1/p' </proc/mdstat)
-	# md root /dev/mdX
-	elif [ "${root#/dev/md}" != "${root}" ]; then
-		root=${root#/dev/md}
+		block=$(sed -ne 's/multipath/[/' -e 's/linear/[/' -e 's/raid[0-9][0-9]*/[/' -e 's/\([hs]d[a-z][a-z]*\)[0-9][0-9]*/\1/g' -e '/^md'$dev_node' :/s/^[^[]*\[ \([^\[]*\)\[.*$/\1/p' </proc/mdstat)
+	# md device /dev/mdX
+	elif [ "${dev_node#/dev/md}" != "${dev_node}" ]; then
+		dev_node=${dev_node#/dev/md}
 		# strip partion number
-		root=${root%%p[0-9]*}
+		dev_node=${dev_node%%p[0-9]*}
 		# drop the partition number only for sdX and hdX devices
 		# and keep it for other devices like loop#, dm-# devices
-		block=$(sed -ne 's/multipath/[/' -e 's/linear/[/' -e 's/raid[0-9][0-9]*/[/' -e 's/\([hs]d[a-z][a-z]*\)[0-9][0-9]*/\1/g' -e '/^md'$root' :/s/^[^[]*\[ \([^\[]*\)\[.*$/\1/p' </proc/mdstat)
+		block=$(sed -ne 's/multipath/[/' -e 's/linear/[/' -e 's/raid[0-9][0-9]*/[/' -e 's/\([hs]d[a-z][a-z]*\)[0-9][0-9]*/\1/g' -e '/^md'$dev_node' :/s/^[^[]*\[ \([^\[]*\)\[.*$/\1/p' </proc/mdstat)
 	# cciss device
-	elif [ "${root#/dev/cciss/}" != "${root}" ]; then
-		block=${root#/dev/cciss/*}
+	elif [ "${dev_node#/dev/cciss/}" != "${dev_node}" ]; then
+		block=${dev_node#/dev/cciss/*}
 		block="cciss!${block%p*}"
 	# ida device
-	elif [ "${root#/dev/ida/}" != "${root}" ]; then
-		block=${root#/dev/ida/*}
+	elif [ "${dev_node#/dev/ida/}" != "${dev_node}" ]; then
+		block=${dev_node#/dev/ida/*}
 		block="ida!${block%p*}"
-	# loop root /dev/loopX
-	elif [ "${root#/dev/loop}" != "${root}" ]; then
-		root=${root#/dev/}
+	# loop device /dev/loopX
+	elif [ "${dev_node#/dev/loop}" != "${dev_node}" ]; then
+		dev_node=${dev_node#/dev/}
 		block=$(losetup -a \
-			| awk "/${root}/{print substr(\$3, 7, 3); exit}")
+			| awk "/${dev_node}/{print substr(\$3, 7, 3); exit}")
 	# Xen virtual device /dev/xvdX
-	elif [ "${root#/dev/xvd}" != "${root}" ]; then
-		block=${root#/dev/}
+	elif [ "${dev_node#/dev/xvd}" != "${dev_node}" ]; then
+		block=${dev_node#/dev/}
 		# Xen has a mode where only the individual partitions are
 		# registered with the kernel as well as the usual full disk
 		# with partition table scheme.
 		if [ ! -e /sys/block/${block} ] ; then
 			block=${block%%[0-9]*}
 		fi
-	# mmc root /dev/mmcblkXpX
-	elif [ "${root#/dev/mmcblk}" != "${root}" ]; then
-		block=${root#/dev/}
+	# mmc device /dev/mmcblkXpX
+	elif [ "${dev_node#/dev/mmcblk}" != "${dev_node}" ]; then
+		block=${dev_node#/dev/}
 		block=${block%%p[0-9]*}
 
-	# nbd root /dev/nbdXpX
-	elif [ "${root#/dev/nbd}" != "${root}" ]; then
-		block=${root#/dev/}
+	# nbd device /dev/nbdXpX
+	elif [ "${dev_node#/dev/nbd}" != "${dev_node}" ]; then
+		block=${dev_node#/dev/}
 		block=${block%%p[0-9]*}
 
-	# DAC960 - good old mylex raid - root dev format /dev/rd/cXdXpX
-	elif [ "${root#/dev/rd/c}" != "${root}" ]; then
-		block="rd!c${root#/dev/rd/c}"
+	# DAC960 - good old mylex raid - device format /dev/rd/cXdXpX
+	elif [ "${dev_node#/dev/rd/c}" != "${dev_node}" ]; then
+		block="rd!c${dev_node#/dev/rd/c}"
 		block=${block%%p[0-9]*}
 
 	# etherd device
-	elif [ "${root#/dev/etherd/}" != "${root}" ]; then
-		block=${root#/dev/etherd/*}
+	elif [ "${dev_node#/dev/etherd/}" != "${dev_node}" ]; then
+		block=${dev_node#/dev/etherd/*}
 		block="etherd!${block%p*}"
 	# i2o raid device
-	elif [ "${root#/dev/i2o/}" != "${root}" ]; then
-		block=${root#/dev/i2o/}
+	elif [ "${dev_node#/dev/i2o/}" != "${dev_node}" ]; then
+		block=${dev_node#/dev/i2o/}
 		block=${block%%[0-9]*}
 		block='i2o!'$block
-	# classical root device
+	# classical block device
 	else
-		block=${root#/dev/}
+		block=${dev_node#/dev/}
 		block=${block%%[0-9]*}
 	fi
 
 	# Error out if /sys lack block dev
 	if [ -z "${block}" ] || [ ! -e /sys/block/${block} ]; then
-		echo "mkinitramfs: for root ${root} missing ${block} /sys/block/ entry" >&2
+		echo "mkinitramfs: for device ${dev_node} missing ${block} /sys/block/ entry" >&2
 		echo "mkinitramfs: workaround is MODULES=most" >&2
 		echo "mkinitramfs: Error please report the bug" >&2
 		exit 1
 	fi
 
 	# sys walk ATA
-	root_dev_path=$(readlink -f /sys/block/${block}/device)
-	sys_walk_mod_add ${root_dev_path}
+	dev_sys_path=$(readlink -f /sys/block/${block}/device)
+	sys_walk_mod_add ${dev_sys_path}
 
 	# sys walk some important device classes
 	for class in gpio phy regulator; do
@@ -459,7 +468,7 @@ dep_add_modules()
 
 	# catch old-style IDE
 	if [ -e /sys/bus/ide/devices/ ]; then
-		sys_walk_modalias ${root_dev_path}
+		sys_walk_modalias ${dev_sys_path}
 		modules="$modules ide-gd_mod ide-cd"
 	fi
 
@@ -491,6 +500,11 @@ dep_add_modules()
 	manual_add_modules $modules
 }
 
+dep_add_modules()
+{
+	dep_add_modules_mount /
+	dep_add_modules_mount /usr
+}
 
 # The modules "most" classes added per default to the initramfs
 auto_add_modules()
