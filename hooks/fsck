@@ -49,7 +49,7 @@ _read_fstab_entry () {
 
 # Find a specific fstab entry and print its type (if found)
 # $1=mountpoint
-get_fstype () {
+get_fstype_fstab () {
 	eval "$(_read_fstab_entry "$1")"
 
 	# Not found by default.
@@ -57,6 +57,7 @@ get_fstype () {
 		case "$MNT_TYPE" in
 			auto)
 				if command -v blkid >/dev/null 2>&1 ; then
+					MNT_FSNAME=$(resolve_device "$MNT_FSNAME")
 					MNT_TYPE=$(blkid -o value -s TYPE "${MNT_FSNAME}")
 				fi
 				if [ -z "${MNT_TYPE}" ]; then
@@ -73,8 +74,8 @@ get_fstype () {
 }
 
 get_fstypes() {
-	get_fstype /
-	get_fstype /usr
+	get_fstype_fstab /
+	get_fstype_fstab /usr
 }
 
 case $1 in
@@ -88,6 +89,7 @@ if [ ! -x /sbin/fsck ]; then
 	exit 0
 fi
 
+. /usr/share/initramfs-tools/scripts/functions
 . /usr/share/initramfs-tools/hook-functions
 
 
