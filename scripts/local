@@ -10,6 +10,13 @@ local_top()
 	local_top_used=yes
 }
 
+local_block()
+{
+	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-block"
+	run_scripts /scripts/local-block "$@"
+	[ "$quiet" != "y" ] && log_end_msg
+}
+
 local_premount()
 {
 	if [ "${local_premount_used}" != "yes" ]; then
@@ -146,6 +153,8 @@ local_mount_fs()
 {
 	read_fstab_entry "$1"
 	MNT_FSNAME=$(resolve_device "$MNT_FSNAME")
+
+	local_block "$MNT_FSNAME"
 
 	local_device_setup "$MNT_FSNAME" "$1"
 
