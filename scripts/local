@@ -64,8 +64,11 @@ local_device_setup()
 	if [ ! -e "$1" ] || ! $(get_fstype "$1" >/dev/null); then
 		log_begin_msg "Waiting for $2 file system"
 
-		# Default delay is 30s (approximately)
-		slumber=${ROOTDELAY:-30}
+		# Timeout is max(30, rootdelay) seconds (approximately)
+		slumber=30
+		if [ ${ROOTDELAY:-0} -gt $slumber ]; then
+			slumber=$ROOTDELAY
+		fi
 
 		while true; do
 			sleep 1
