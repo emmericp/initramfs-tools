@@ -416,9 +416,11 @@ present (local) or the network interface is expected to be usable (NFS).
 .TP
 \fB\fI
 local-block
-These scripts are called with the name of a local device other than
-that used for root.  After these scripts have been executed, that
-device node is expected to be present.
+These scripts are called with the name of a local block device.  After
+these scripts have been executed, that device node should be present.
+If the local-top or local-block scripts fail to create the wanted
+device node, the local-block scripts will be called periodically to
+try again.
 
 .TP
 \fB\fI
