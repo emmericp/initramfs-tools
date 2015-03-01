@@ -146,7 +146,7 @@ if dpkg --compare-versions "${version}" lt "2.6.38" 2>/dev/null; then
 fi
 
 [ "${compress}" = lzop ] && compress="lzop -9"
-[ "${compress}" = xz ] && compress="xz -8 --check=crc32"
+[ "${compress}" = xz ] && compress="xz --check=crc32"
 
 if [ -d "${outfile}" ]; then
 	echo "${outfile} is a directory" >&2
