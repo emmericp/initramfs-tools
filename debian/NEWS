@@ -6,6 +6,12 @@ initramfs-tools (0.119) UNRELEASED; urgency=medium
   * If the /usr filesystem is on a RAID device and the INITRDSTART setting
     in /etc/default/mdadm is not 'all', you will need to change it to
     include that device.
+  * If the RTC (real time clock) is set to local time and the local time is
+    ahead of UTC, e2fsck will print a warning during boot about the time
+    changing backward (bug #767040).  You can disable this by putting the
+    following lines in /etc/e2fsck.conf:
+        [options]
+        broken_system_clock=1
 
  -- Ben Hutchings <ben@decadent.org.uk>  Sat, 17 Jan 2015 16:56:56 +0000
 
