@@ -1,4 +1,4 @@
-initramfs-tools (0.119) UNRELEASED; urgency=medium
+initramfs-tools (0.119) unstable; urgency=medium
 
   * The initramfs will now run fsck on the root filesystem before
     mounting it.  If the chosen init program is systemd and there is a

@@ -1,3 +1,65 @@
+initramfs-tools (0.119) unstable; urgency=medium
+
+  The "Wait smarter not harder" release
+
+  [ Ben Hutchings ]
+  * [bf238f6] Always generate ORDER files in mkinitramfs (Closes: #688794)
+  * [8529550] Move get_source, set_initlist, get_prereq_pairs, call_scripts to
+    hook-functions
+  * [6ba2e93] hook-functions: Add modules for various important device types
+    (Closes: #762042)
+  * [9c8bde8] mkinitramfs.8: Update default temporary directory
+    (Closes: #764388)
+  * [1bd461e] initramfs-tools.8: Refer to lsinitramfs rather than suggesting
+    gunzip | cpio (Closes: #764022)
+  * [64d39d0] Add comment to /usr/share/initramfs-tools/modules that it is not
+    a config file (Closes: #752789)
+  * [4f1414b] initramfs-tools.8: Improve documentation of break parameter.
+    Thanks to Helmut Grohne <helmut@subdivi.de> (Closes: #707583)
+  * [a5fbfb8] update-initramfs: Fix error message in case of excess arguments
+    (Closes: #627547)
+  * [738678f] initramfs.conf.5: Update configuration directory (Closes: #759552)
+  * [3862d9b] update-initramfs: Consistently show which options take arguments
+    (Closes: #762768)
+  * [35bdb74] Refer to lsinitramfs(8) from {initramfs-tools,mkinitramfs,
+    update-initramfs}(8) (Closes: #764020)
+  * [cf9691d] mkinitramfs: Use default xz compression level rather than -8
+    (Closes: #697335)
+  * [10ebca7] mkinitramfs: Improve warning text when missing modules.
+    Thanks to Trent W. Buck <trentbuck@gmail.com> (Closes: #744836)
+  * [540dcb6] initramfs-tools.8: Refer to 'phase' rather than 'stage' of
+    initramfs execution
+  * [c7a3b31] initramfs-tools.8: Briefly document the kernel hooks
+  * [274f945] hooks/fsck: Remove dependency on hwclock by disabling e2fsck time
+    check
+  * [1780a66] checkfs: Continue unless fsck reports uncorrectable errors
+    (Closes: #765614)
+  * [e5526cd] checkfs: Correct error messages and emergency shell in case of
+    failure
+  * [9daea18] hooks/fsck: Fix type lookup for mount by UUID or label with
+    type=auto (Closes: #766448)
+  * [2b1d834] dep_add_modules: Add modules needed for /usr device
+  * [a164229] NEWS: Begin a NEWS entry for the fsck and /usr-mount changes
+  * [2bbe817] NEWS: Document the possible need to update mdadm INITRDSTART
+    (Closes: #771301)
+  * [884a518] control: Ensure cryptsetup is upgraded to support mounting /usr
+  * [7b4635c] Allow passing arguments to hooks and scripts
+  * [2e2f753] local: Call local-block boot scripts to prepare additional block
+    devices
+  * [3a1db85] control: Add versioned Breaks on lvm2 without a local-block boot
+    script (Closes: #762984)
+  * [d4e5601] local: Invoke local-block scripts from the loop in
+    local_device_setup (Closes: #678696)
+  * [8402332] local: Use max(30, rootdelay) as timeout for block device to
+    appear
+  * [adfa0f6] NEWS: Add an entry about e2fsck behaviour with RTC set to local
+    time
+
+  [ Bastian Blank ]
+  * [9bc3a78] hook-functions: Add xhci-pci to module list (Closes: #773250)
+
+ -- Ben Hutchings <ben@decadent.org.uk>  Sun, 01 Mar 2015 23:58:49 +0000
+
 initramfs-tools (0.118) unstable; urgency=medium
 
   [ Ben Hutchings ]
