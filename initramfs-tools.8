@@ -589,6 +589,12 @@ lsinitramfs /boot/initrd.img\-3.16\-3\-amd64
 .TP
 .I /run/initramfs/fsck.log
 Log of fsck commands run within the initramfs, with their output.
+.TP
+.I /run/initramfs/fsck-root
+Exists only if fsck ran successfully for the root filesystem.
+.TP
+.I /run/initramfs/fsck-usr
+Exists only if fsck ran successfully for the \fI/usr\fR filesystem.
 
 
 .SH AUTHOR

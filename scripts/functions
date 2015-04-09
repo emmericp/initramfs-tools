@@ -341,6 +341,7 @@ _checkfs_once()
 		NAME="root"
 	fi
 	FSCK_LOGFILE=/run/initramfs/fsck.log
+	FSCK_STAMPFILE=/run/initramfs/fsck-${NAME#/}
 
 	TYPE=$(get_fstype "$1")
 
@@ -396,6 +397,8 @@ _checkfs_once()
 	then
 		log_warning_msg "File system check failed but did not detect errors"
 		sleep 5
+	else
+		touch $FSCK_STAMPFILE
 	fi
 	return 0
 }
