@@ -340,7 +340,7 @@ _checkfs_once()
 	if [ "$NAME" = "/" ] ; then
 		NAME="root"
 	fi
-	FSCK_LOGFILE=/run/initramfs/fsck
+	FSCK_LOGFILE=/run/initramfs/fsck.log
 
 	TYPE=$(get_fstype "$1")
 
