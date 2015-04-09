@@ -380,9 +380,6 @@ _checkfs_once()
 		log_end_msg
 	fi
 
-	#
-	# If there was a failure, drop into a shell.
-	#
 	# NOTE: "failure" is defined as exiting with a return code of
 	# 4, possibly or-ed with other flags. A return code of 1
 	# indicates that file system errors were corrected but that
