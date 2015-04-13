@@ -1,3 +1,17 @@
+initramfs-tools (0.120) unstable; urgency=medium
+
+  * [23ee5f9] Add '.log' to fsck log output file, and document its existence
+    (Closes: #780352)
+  * [b87e34b] Remove old comment about running shell on failure of fsck
+  * [864c04b] Create stamp files to tell the real init system fsck was
+    successful (Closes: #782481)
+  * [f54fe54] NEWS: Improve wording of the entry about mdadm's INITRDSTART
+    setting
+  * [25ab961] NEWS: Add entries about other ways of mounting /usr that won't
+    work
+
+ -- Ben Hutchings <ben@decadent.org.uk>  Mon, 13 Apr 2015 01:18:06 +0100
+
 initramfs-tools (0.119) unstable; urgency=medium
 
   The "Wait smarter not harder" release
