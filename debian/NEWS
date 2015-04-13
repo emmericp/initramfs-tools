@@ -3,9 +3,9 @@ initramfs-tools (0.119) unstable; urgency=medium
   * The initramfs will now run fsck on the root filesystem before
     mounting it.  If the chosen init program is systemd and there is a
     separate /usr filesystem, it will also fsck and mount /usr.
-  * If the /usr filesystem is on a RAID device and the INITRDSTART setting
-    in /etc/default/mdadm is not 'all', you will need to change it to
-    include that device.
+  * If /usr is a separate filesystem on a RAID device and the INITRDSTART
+    setting in /etc/default/mdadm is not 'all', you will need to change it
+    to include that device.
   * If the RTC (real time clock) is set to local time and the local time is
     ahead of UTC, e2fsck will print a warning during boot about the time
     changing backward (bug #767040).  You can disable this by putting the
