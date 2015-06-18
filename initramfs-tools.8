@@ -49,6 +49,15 @@ Use root=/dev/nfs for NFS to kick to in. NFSOPTS can be looked up in
 \fInfs(5)\fP.
 
 .TP
+\fB\fI rbdroot
+boot from a Ceph \fIrbd(8)\fP image. Can be either "auto" to try to get the relevant
+information from DHCP or a string of the form
+<mon1>[,<mon2>,...]:<user>:<key>:<pool>:<image>[@<snapshot>]:[<partition>]:[<mountopts>].
+Use a semicolon to connect to a monitor running on a non-standard port,
+e.g. 10.0.0.1;1234.
+
+
+.TP
 \fB\fI ip
 tells how to configure the ip address. Allows one to specify an different
 NFS server than the DHCP server. See Documentation/filesystems/nfsroot.txt
