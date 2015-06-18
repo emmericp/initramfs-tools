@@ -101,6 +101,9 @@ for x in $(cat /proc/cmdline); do
 	nfsroot=*)
 		NFSROOT="${x#nfsroot=}"
 		;;
+	rbdroot=*)
+		RBDROOT="${x#rbdroot=}"
+		;;
 	ip=*)
 		IP="${x#ip=}"
 		;;

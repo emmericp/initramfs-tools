@@ -513,7 +513,7 @@ auto_add_modules()
 	local modules=
 
 	if [ "$#" -eq 0 ] ; then
-		set -- base net ide scsi block ata i2o dasd ieee1394 firewire mmc usb_storage
+		set -- base net ide scsi block ata i2o dasd ieee1394 firewire mmc usb_storage rbd
 	fi
 
 	for arg in "$@" ; do
@@ -594,6 +594,8 @@ auto_add_modules()
 		usb_storage)
 			copy_modules_dir kernel/drivers/usb/storage
 		;;
+		rbd)
+			modules="$modules rbd aes cbc"
 		esac
 	done
 
